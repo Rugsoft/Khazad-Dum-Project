@@ -146,13 +146,18 @@ public class RegisterForm extends JDialog implements ActionListener{
 	        textEmail.getText().trim().isEmpty() ||
 	        comboBox.getSelectedIndex() == 0) { // 0 es "Seleccione"
 
-	        JOptionPane.showMessageDialog(null, "Rellena todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+	        JOptionPane.showMessageDialog(null, "Rellena todos los campos y selecciona una opcion del desplegable", "Error", JOptionPane.ERROR_MESSAGE);
 	        return;
 	        
 	    } else {
 	    	
 	    	String name = textName.getText();
 	    	String apellido = textApellido.getText();
+	    	String usuario = textUser.getText();
+	    	String password = new String(passwordField.getPassword());
+	    	String email = textEmail.getText();
+	    	String nivel = comboBox.getSelectedItem().toString();
+	    	
 	    	
 	    }
 		
