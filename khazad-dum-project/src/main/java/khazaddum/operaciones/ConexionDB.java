@@ -2,7 +2,10 @@ package khazaddum.operaciones;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import javax.swing.JOptionPane;
 
 public class ConexionDB {
 
@@ -40,5 +43,29 @@ public class ConexionDB {
 		}
 		
 		return conexion;
+	}
+	
+	public static void añadirUsuariosLogin(String sql, Object[] datos) {
+		
+		try (Connection conexion = conectar()){
+			
+			if(conexion != null) {
+				PreparedStatement sentencia = conexion.prepareStatement(sql);
+				
+				for(int i = 0; i < datos.length; i++) {
+					sentencia.setObject(i + 1, datos[i]);
+				}
+				
+				sentencia.executeUpdate();
+				System.out.println("Usuario registrado");
+				JOptionPane.showMessageDialog(null, "Usuario registrado correctamente", "Info", JOptionPane.INFORMATION_MESSAGE);
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+			System.out.println("No se ha podido registrar el usuario, error: " + e.getMessage());
+		}
+		
 	}
 }

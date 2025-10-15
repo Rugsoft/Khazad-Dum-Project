@@ -3,6 +3,8 @@ package khazaddum.gui;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JDialog;
 import java.awt.Color;
@@ -15,6 +17,10 @@ import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+
+import khazaddum.modelo.UserLogin;
+import khazaddum.operaciones.ConexionDB;
+
 import javax.swing.border.EtchedBorder;
 import javax.swing.JPasswordField;
 import javax.swing.JComboBox;
@@ -33,6 +39,7 @@ public class RegisterForm extends JDialog implements ActionListener{
 	private JTextField textEmail;
 	private JComboBox<String> comboBox;
 	private JButton btnRegister;
+	private List<UserLogin> listaUsuarios = new ArrayList<>();
 
 
 	/**
@@ -158,8 +165,26 @@ public class RegisterForm extends JDialog implements ActionListener{
 	    	String email = textEmail.getText();
 	    	String nivel = comboBox.getSelectedItem().toString();
 	    	
+	    	UserLogin nuevoUsuario = new UserLogin(name, apellido, usuario, password, email, nivel);
+	    	listaUsuarios.add(nuevoUsuario);
+	    	String sql = "INSERT INTO login_usuarios (nombre, apellido, username, password, email, nivel) VALUES (?, ?, ?, ?, ?, ?)";
+	    	
+	    	ConexionDB.añadirUsuariosLogin(sql, nuevoUsuario.crear());
+	    	
+	    	limpiarCampos();
 	    	
 	    }
 		
+	}
+	
+	public void limpiarCampos(){
+		
+		textName.setText("");
+		textApellido.setText("");
+		textUser.setText("");
+		passwordField.setText("");
+		textEmail.setText("");
+		comboBox.setSelectedIndex(0);
+	
 	}
 }
