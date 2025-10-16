@@ -5,10 +5,14 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+
+import khazaddum.operaciones.ConexionDB;
+
 import javax.swing.JButton;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
@@ -26,22 +30,7 @@ public class LoginForm extends JDialog implements ActionListener{
 	private final JPasswordField passwordField = new JPasswordField();
 	private RegisterForm dialog = new RegisterForm();
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			LoginForm dialog = new LoginForm();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Create the dialog.
-	 */
+	
 	public LoginForm() {
 		setBounds(100, 100, 314, 390);
 		setLocationRelativeTo(null);
@@ -94,6 +83,58 @@ public class LoginForm extends JDialog implements ActionListener{
 		if (btnRegister == e.getSource()) {
 			
 			registerForm();
+		}
+		if (btnLogin == e.getSource()) {
+			
+			loginCheck();
+		}
+		
+	}
+
+	private void loginCheck() {
+		
+		String user = textUser.getText();
+		String pass = new String(passwordField.getPassword());
+		
+		if (!user.trim().isEmpty() && !pass.trim().isEmpty()) {
+			
+			String sql = "SELECT nivel FROM login_usuarios WHERE username = ? AND password = ?";
+			String nivel = ConexionDB.comprobarLogin(sql, user, pass);
+			if (nivel != null) {
+				
+				switch (nivel) {
+				case "Gandalf":
+					
+					MainWindowBalrog admin = new MainWindowBalrog(user, nivel);
+					admin.setVisible(true);
+					this.dispose();
+					break;
+					
+				case "Balrog":
+					
+					MainWindowBalrog seguridad = new MainWindowBalrog(user, nivel);
+					seguridad.setVisible(true);
+					this.dispose();
+					break;	
+					
+				case "Goblin":
+					
+					MainWindowBalrog consultor = new MainWindowBalrog(user, nivel);
+					consultor.setVisible(true);
+					this.dispose();
+					break;
+					
+				} 
+				
+			} else {
+				JOptionPane.showMessageDialog(null, "Usuario o contrase\u00F1a incorrectos", "Error", JOptionPane.ERROR_MESSAGE);
+				
+			}
+	        
+
+		} else {
+			
+			JOptionPane.showMessageDialog(null, "Rellena los dos campos", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 		
 	}

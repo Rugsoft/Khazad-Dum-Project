@@ -42,15 +42,20 @@ public class RegisterForm extends JDialog implements ActionListener{
 	private List<UserLogin> listaUsuarios = new ArrayList<>();
 
 
-	/**
-	 * Create the dialog.
-	 */
 	public RegisterForm() {
 		
 		setBounds(100, 100, 392, 434);
 		setLocationRelativeTo(null);
 		getContentPane().setBackground(new Color(64, 128, 128));
 		getContentPane().setLayout(null);
+		
+		visualElements();
+		
+		
+		
+	}
+	
+	private void visualElements() {
 		
 		JLabel lblNewLabel = new JLabel("");
 		lblNewLabel.setIcon(new ImageIcon(RegisterForm.class.getResource("/kazaddum/images/IconoRegistro-removebg-150px.png")));
@@ -93,7 +98,7 @@ public class RegisterForm extends JDialog implements ActionListener{
 		getContentPane().add(textEmail);
 		
 		comboBox = new JComboBox<String>();
-		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Seleccione", "Consultor", "Seguridad", "Administrador"}));
+		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Seleccione", "Goblin", "Balrog", "Gandalf"}));
 		comboBox.setBackground(new Color(64, 128, 128));
 		comboBox.setBorder(new TitledBorder(null, "Nivel Seg.", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		comboBox.setBounds(204, 232, 139, 42);
@@ -110,7 +115,7 @@ public class RegisterForm extends JDialog implements ActionListener{
 		getContentPane().add(btnRegister);
 		
 	}
-	
+
 	class CustomColorRenderer extends DefaultListCellRenderer {
 
         // Aquí defines tu color usando los valores RGB de la imagen
@@ -169,9 +174,12 @@ public class RegisterForm extends JDialog implements ActionListener{
 	    	listaUsuarios.add(nuevoUsuario);
 	    	String sql = "INSERT INTO login_usuarios (nombre, apellido, username, password, email, nivel) VALUES (?, ?, ?, ?, ?, ?)";
 	    	
-	    	ConexionDB.añadirUsuariosLogin(sql, nuevoUsuario.crear());
+	    	boolean resultConection = ConexionDB.añadirUsuariosLogin(sql, nuevoUsuario.crear());
 	    	
-	    	limpiarCampos();
+	    	if (resultConection) {
+	    		limpiarCampos();
+	    	}
+	    	
 	    	
 	    }
 		
