@@ -43,6 +43,7 @@ public class RegisterForm extends JDialog implements ActionListener{
 
 
 	public RegisterForm() {
+		setTitle("Registro de Usuarios/Admins");
 		
 		setBounds(100, 100, 392, 434);
 		setLocationRelativeTo(null);

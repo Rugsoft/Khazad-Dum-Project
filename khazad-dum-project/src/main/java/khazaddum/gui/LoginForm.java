@@ -32,6 +32,7 @@ public class LoginForm extends JDialog implements ActionListener{
 
 	
 	public LoginForm() {
+		setTitle("Inciar Sesion");
 		setBounds(100, 100, 314, 390);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(new BorderLayout());
@@ -105,7 +106,7 @@ public class LoginForm extends JDialog implements ActionListener{
 				switch (nivel) {
 				case "Gandalf":
 					
-					MainWindowBalrog admin = new MainWindowBalrog(user, nivel);
+					MainWindowGandalf admin = new MainWindowGandalf(user, nivel);
 					admin.setVisible(true);
 					this.dispose();
 					break;
