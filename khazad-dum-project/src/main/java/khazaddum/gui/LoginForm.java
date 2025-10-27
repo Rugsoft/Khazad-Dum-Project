@@ -106,7 +106,7 @@ public class LoginForm extends JDialog implements ActionListener{
 				switch (nivel) {
 				case "Gandalf":
 					
-					MainWindowGandalf admin = new MainWindowGandalf(user, nivel);
+					MainWindowBalrog admin = new MainWindowBalrog(user, nivel);
 					admin.setVisible(true);
 					this.dispose();
 					break;

@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -156,27 +157,60 @@ public class TemporaryUserRegister extends JDialog implements ActionListener{
 		}
 		if (btnRegisterTemp == e.getSource()) {
 			
-			registerTempUser();
+			
+			// 1. Recoger y validar los datos actuales
+			String nombre = textName.getText();
+			String apellido1 = textLasName1.getText();
+			String apellido2 = textLastName2.getText();
+			String dni = textDNI.getText();
+			String motivo = textReason.getText();
+			int horas = Integer.parseInt(comboTime.getSelectedItem().toString());
+						
+			// Validación simple
+			if (nombre.isEmpty() || apellido1.isEmpty() || dni.isEmpty() || motivo.isEmpty() || comboTime.getSelectedIndex() == 0 || selectedPicture == null) {
+				JOptionPane.showMessageDialog(this, "Por favor, rellene todos los campos y seleccione una foto.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+				return; // Detiene la ejecución si algo falta
+			}
+
+			// 2. Abrir el diálogo RFID
+			// 'this' hace que el nuevo diálogo sea modal sobre esta ventana
+			RfidReaderDialog rfidDialog = new RfidReaderDialog(this); 
+			rfidDialog.setVisible(true); // El código se detiene aquí hasta que rfidDialog se cierre
+						
+			// 3. Recoger el resultado del diálogo RFID
+			String codigoTag = rfidDialog.getCodigoTagLeido();
+						
+			// 4. Continuar solo si se leyó un tag
+			if (codigoTag != null && !codigoTag.isEmpty()) {
+				// 5. Llamar al registro CON TODOS los datos
+				registerTempUser(nombre, apellido1, apellido2, dni, motivo, horas, selectedPicture, codigoTag);
+							
+				JOptionPane.showMessageDialog(this, "Usuario temporal registrado con éxito.");
+				this.dispose(); // Cierra la ventana de registro
+			} else {
+				// El usuario cerró el diálogo RFID o no se leyó nada
+				JOptionPane.showMessageDialog(this, "Registro cancelado. No se leyó ningún tag RFID.", "Cancelado", JOptionPane.WARNING_MESSAGE);
+			}
 		}
-		
 	}
 
-	private void registerTempUser() {
+	private void registerTempUser(String nombre, String apellido1, String apellido2, String dni, String motivo, int horas, File foto, String codigoTag) {
 
-		String nombre = textName.getText();
-		String apellido1 = textLasName1.getText();
-		String apellido2 = textLastName2.getText();
-		String dni = textDNI.getText();
-		String motivo = textReason.getText();
-		int horas = Integer.parseInt(comboTime.getSelectedItem().toString());
-		
-		VisitaTemporal tempUser = new VisitaTemporal(nombre, apellido1, apellido2, dni, motivo, selectedPicture, horas);
-		
+		// Asumimos que has modificado VisitaTemporal para aceptar el tag
+		VisitaTemporal tempUser = new VisitaTemporal(nombre, apellido1, apellido2, dni, motivo, foto, horas, codigoTag);
+				
 		try {
-			ConexionDB.añadirUsuarioTemporal(tempUser.crear());
+			// Asumimos que crear() y añadirUsuarioTemporal() están listos para manejar el tag
+			ConexionDB.añadirUsuarioTemporal(tempUser.crear()); 
 		} catch (FileNotFoundException e) {
 			System.out.println("No se encontro el fichero: " + e.getMessage());
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Error al guardar la imagen: " + e.getMessage(), "Error de Fichero", JOptionPane.ERROR_MESSAGE);
+		} catch (Exception e) {
+			// Captura genérica para otros errores (ej. SQL)
+			System.out.println("Error al registrar: " + e.getMessage());
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Error al registrar en la base de datos: " + e.getMessage(), "Error de DB", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

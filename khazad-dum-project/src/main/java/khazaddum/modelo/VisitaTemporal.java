@@ -11,9 +11,10 @@ public class VisitaTemporal {
 	private String motivo;
 	private File foto;
 	private int horas;
+	private String codigoTag;
 	
 	public VisitaTemporal(String name, String lastName1, String lastName2, String dni, String motivo, File foto,
-			int horas) {
+			int horas, String codigoTag) {
 	
 		this.name = name;
 		this.lastName1 = lastName1;
@@ -22,10 +23,11 @@ public class VisitaTemporal {
 		this.motivo = motivo;
 		this.foto = foto;
 		this.horas = horas;
+		this.codigoTag = codigoTag;
 	}
 	
 	public Object[] crear() {
-		return new Object[] {name, lastName1, lastName2, dni, motivo, foto, horas};
+		return new Object[] {name, lastName1, lastName2, dni, motivo, foto, horas, codigoTag};
 	}
 	
 	

@@ -159,8 +159,8 @@ public class ConexionDB {
 	public static void añadirUsuarioTemporal(Object[] datos) throws FileNotFoundException {
 		
 		String sqlEntidad = "INSERT INTO entidades (tipo_entidad) VALUES ('temporal')";
-		String sqlTemporal = "INSERT INTO usuarios_temporales (id_entidad, nombre, apellido1, apellido2, dni, motivo_visita, foto, fecha_expiracion) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		String sqlTemporal = "INSERT INTO usuarios_temporales (id_entidad, nombre, apellido1, apellido2, dni, motivo_visita, foto, fecha_expiracion, codigo_tag) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
 		int idEntidad = -1;
 		
