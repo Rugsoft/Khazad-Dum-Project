@@ -18,6 +18,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import khazaddum.modelo.VisitaTemporal;
+import khazaddum.operaciones.ComunicacionSerie;
+import khazaddum.operaciones.ComunicacionSerie.SerialDataCallback;
 import khazaddum.operaciones.ConexionDB;
 
 import javax.swing.border.EtchedBorder;
@@ -30,7 +32,7 @@ import java.awt.Cursor;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-public class TemporaryUserRegister extends JDialog implements ActionListener{
+public class TemporaryUserRegister extends JDialog implements ActionListener, SerialDataCallback {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField textName;
@@ -44,6 +46,8 @@ public class TemporaryUserRegister extends JDialog implements ActionListener{
 	private JButton btnRegisterTemp;
 	private JComboBox<String> comboTime;
 	private JTextField txtRuraFoto;
+	private ComunicacionSerie miConexion;
+    private String mensajeDeArduino = "";
 
 	
 	public TemporaryUserRegister() {
@@ -167,25 +171,25 @@ public class TemporaryUserRegister extends JDialog implements ActionListener{
 			int horas = Integer.parseInt(comboTime.getSelectedItem().toString());
 						
 			// Validación simple
-			if (nombre.isEmpty() || apellido1.isEmpty() || dni.isEmpty() || motivo.isEmpty() || comboTime.getSelectedIndex() == 0 || selectedPicture == null) {
-				JOptionPane.showMessageDialog(this, "Por favor, rellene todos los campos y seleccione una foto.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
-				return; // Detiene la ejecución si algo falta
-			}
-
-			// 2. Abrir el diálogo RFID
-			// 'this' hace que el nuevo diálogo sea modal sobre esta ventana
-			RfidReaderDialog rfidDialog = new RfidReaderDialog(this); 
-			rfidDialog.setVisible(true); // El código se detiene aquí hasta que rfidDialog se cierre
-						
+			if ( !nombre.isEmpty() && !apellido1.isEmpty() && !dni.isEmpty() && !motivo.isEmpty() && comboTime.getSelectedIndex() != 0 && selectedPicture != null ) {
+				
+				miConexion = new ComunicacionSerie();
+				miConexion.setSerialDataCallback(this);
+				miConexion.conectar();
+				
+				JOptionPane.showMessageDialog(this, "Por favor, acerque el tag RFID al lector.", "Informacion", JOptionPane.INFORMATION_MESSAGE);
+				
+			} else {
+				JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos y seleccione una foto.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+				return;
+			}		
 			// 3. Recoger el resultado del diálogo RFID
-			String codigoTag = rfidDialog.getCodigoTagLeido();
+			String codigoTag = mensajeDeArduino;
 						
 			// 4. Continuar solo si se leyó un tag
 			if (codigoTag != null && !codigoTag.isEmpty()) {
 				// 5. Llamar al registro CON TODOS los datos
 				registerTempUser(nombre, apellido1, apellido2, dni, motivo, horas, selectedPicture, codigoTag);
-							
-				JOptionPane.showMessageDialog(this, "Usuario temporal registrado con éxito.");
 				this.dispose(); // Cierra la ventana de registro
 			} else {
 				// El usuario cerró el diálogo RFID o no se leyó nada
@@ -230,6 +234,12 @@ public class TemporaryUserRegister extends JDialog implements ActionListener{
 		    txtRuraFoto.setText(selectedPicture.getAbsolutePath());
 		 
 		}	
+	}
+
+	@Override
+	public void onDatoRecibido(String dato) {
+		mensajeDeArduino = dato;
+		
 	}
 	
 	

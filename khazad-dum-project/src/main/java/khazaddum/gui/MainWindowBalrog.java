@@ -20,13 +20,16 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import khazaddum.modelo.Empleado;
+import khazaddum.modelo.ResultadoIdentificacion;
+import khazaddum.operaciones.ComunicacionSerie.SerialDataCallback;
+import khazaddum.operaciones.ComunicacionSerie;
 import khazaddum.operaciones.ConexionDB;
 
 import javax.swing.border.EtchedBorder;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 
-public class MainWindowBalrog extends JFrame implements ActionListener {
+public class MainWindowBalrog extends JFrame implements ActionListener, SerialDataCallback {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -45,6 +48,8 @@ public class MainWindowBalrog extends JFrame implements ActionListener {
 	private JPanel panel_2;
 	private DefaultTableModel modelo;
 	private JButton btnTempUser;
+	private ComunicacionSerie miConexion;
+    private String mensajeDeArduino = "";
 
 	public MainWindowBalrog(String user, String nivel) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -61,9 +66,10 @@ public class MainWindowBalrog extends JFrame implements ActionListener {
 		
 		visualElements();
 		saludo(user, nivel);
+		miConexion = new ComunicacionSerie();
+		miConexion.setSerialDataCallback(this);
+		miConexion.conectar();
 		
-		
-
 	}
 
 	private void saludo(String user, String nivel) {
@@ -279,5 +285,84 @@ public class MainWindowBalrog extends JFrame implements ActionListener {
 		
 		}
 
+	}
+
+	@Override
+	public void onDatoRecibido(String dato) {
+		mensajeDeArduino = dato;
+		
+		entradaUsuario();
+		
+		
+	}
+
+	private void registrarEntradaSalida(String idEntidad) {
+		ConexionDB conex = new ConexionDB();
+		String resultado = conex.registrarEntradaSalida(idEntidad);
+		
+		if (resultado != null) {
+			modelo.setRowCount(0);
+			Object[][] historial = conex.obtenerHistorialDelDia();
+			
+			for (Object[] fila : historial) {
+				modelo.addRow(fila);
+			}
+		}
+		
+	}
+
+	private void entradaUsuario() {
+		
+		ConexionDB conex = new ConexionDB();
+		ResultadoIdentificacion resultado = conex.buscarEmpleadoPorTag(mensajeDeArduino);
+		
+		if (resultado.tipoEntidad().equals("empleado")) {
+			
+			Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
+			textName.setText(String.valueOf(usuario[0]));
+			textLastName1.setText(String.valueOf(usuario[1]));
+			textLasName2.setText(String.valueOf(usuario[2]));
+			textDNI.setText(String.valueOf(usuario[3]));
+			textGender.setText(String.valueOf(usuario[4]));
+			textRole.setText(String.valueOf(usuario[5]));
+			textEmail.setText(String.valueOf(usuario[6]));
+			textAcces.setText(String.valueOf(usuario[7]));
+			if (usuario[8] != null && usuario[8] instanceof byte[]) {
+				
+			    byte[] fotoBytes = (byte[]) usuario[8];
+			    javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoBytes);
+			    lblPicture.setIcon(icono); 
+			    
+			} else {
+			   
+			    lblPicture.setIcon(null); 
+			}
+		} else if (resultado.tipoEntidad().equals("temporal")) {
+			
+			Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
+			textName.setText(String.valueOf(usuario[0]));
+			textLastName1.setText(String.valueOf(usuario[1]));
+			textLasName2.setText(String.valueOf(usuario[2]));
+			textDNI.setText(String.valueOf(usuario[3]));
+			textGender.setText(String.valueOf(usuario[4]));
+			textRole.setText("Visita Temporal");
+			textEmail.setText(String.valueOf(usuario[5]));
+			textAcces.setText("N/A");
+			if (usuario[6] != null && usuario[6] instanceof byte[]) {
+				
+			    byte[] fotoBytes = (byte[]) usuario[6];
+			    javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoBytes);
+			    lblPicture.setIcon(icono); 
+			    
+			} else {
+			   
+			    lblPicture.setIcon(null); 
+			}
+		}
+		
+		
+		registrarEntradaSalida(resultado.idEntidad());
+		
+			
 	}
 }	

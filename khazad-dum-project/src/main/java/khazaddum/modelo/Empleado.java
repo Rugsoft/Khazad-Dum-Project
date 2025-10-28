@@ -11,9 +11,10 @@ public class Empleado {
 	 private String email;
 	 private int nivelAcceso;
 	 private byte[] foto;
+	 private String tag;
 	 
 	 public Empleado(String name, String lastName1, String lastName2, String dni, String genero, String puesto,
-			String email, int nivelAcceso, byte[] foto) {
+			String email, int nivelAcceso, byte[] foto, String tag) {
 
 		this.name = name;
 		this.lastName1 = lastName1;
@@ -24,10 +25,11 @@ public class Empleado {
 		this.email = email;
 		this.nivelAcceso = nivelAcceso;
 		this.foto = foto;
+		this.tag = tag;
 	 }
 	 
 	 public Object[] crear() {
-			return new Object[] {name, lastName1, lastName2, dni, genero, puesto, email, nivelAcceso, foto};
+			return new Object[] {name, lastName1, lastName2, dni, genero, puesto, email, nivelAcceso, foto, tag};
 		}
 	 
 

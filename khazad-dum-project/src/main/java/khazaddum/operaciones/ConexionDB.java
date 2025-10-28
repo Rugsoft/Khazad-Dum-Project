@@ -3,7 +3,9 @@ package khazaddum.operaciones;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 import javax.swing.JOptionPane;
 
 import khazaddum.modelo.Empleado;
+import khazaddum.modelo.ResultadoIdentificacion;
 import khazaddum.modelo.VisitaTemporal;
 
 public class ConexionDB {
@@ -139,7 +142,8 @@ public class ConexionDB {
 						String email = resultado.getString("email");
 						int nivelAcceso = Integer.parseInt(resultado.getString("nivel_acceso"));
 						byte[] foto = resultado.getBytes("foto");
-						Empleado empleado = new Empleado(nombreEmp, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, foto);
+						String tag = resultado.getString("codigo_tag");
+						Empleado empleado = new Empleado(nombreEmp, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, foto, tag);
 						encontrado = false;
 						return empleado;
 					
@@ -209,4 +213,149 @@ public class ConexionDB {
 				}
 				
 		}
+	
+	public ResultadoIdentificacion buscarEmpleadoPorTag(String tag) {
+		
+		String sql = "(SELECT E.id_entidad, E.tipo_entidad, EM.nombre, EM.apellido1 " +
+                " FROM empleados EM JOIN entidades E ON EM.id_entidad = E.id_entidad " +
+                " WHERE EM.codigo_tag = ?) " +
+                "UNION ALL " +
+                "(SELECT E.id_entidad, E.tipo_entidad, UT.nombre, UT.apellido1 " +
+                " FROM usuarios_temporales UT JOIN entidades E ON UT.id_entidad = E.id_entidad " +
+                " WHERE UT.codigo_tag = ?)";
+		
+		try (Connection conexion = conectar()){
+			
+			if(conexion != null) {
+				PreparedStatement sentencia = conexion.prepareStatement(sql);
+				sentencia.setString(1, tag);
+				sentencia.setString(2, tag);
+				
+				ResultSet resultado = sentencia.executeQuery();
+				
+				if (resultado.next()) {
+					int idEntidad = resultado.getInt("id_entidad");
+                    String tipoEntidad = resultado.getString("tipo_entidad");
+                    return new ResultadoIdentificacion(idEntidad, tipoEntidad);
+                    
+				} else {
+					System.out.println("Tag no encontrado");
+					return null;
+				}
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+			System.out.println("No se ha podido comprobar el tag: " + e.getMessage());
+			return null;
+		}
+		return null;
+		
+		
+	}
+	
+	public Object[] obtenerDatosCompletos(int idEntidad, String tipoEntidad) {
+	    String sqlEmpleado = "SELECT * FROM empleados WHERE id_entidad = ?";
+	    String sqlTemporal = "SELECT * FROM usuarios_temporales WHERE id_entidad = ?";
+
+	    try (Connection conexion = conectar()) {
+
+	        if (conexion != null) {
+	            PreparedStatement sentencia;
+	            if (tipoEntidad.equals("empleado")) {
+	                sentencia = conexion.prepareStatement(sqlEmpleado);
+	            } else if (tipoEntidad.equals("temporal")) {
+	                sentencia = conexion.prepareStatement(sqlTemporal);
+	            } else {
+	                System.out.println("Tipo de entidad desconocido");
+	                return null;
+	            }
+
+	            sentencia.setInt(1, idEntidad);
+	            ResultSet resultado = sentencia.executeQuery();
+
+	            if (resultado.next()) {
+	                if (tipoEntidad.equals("empleado")) {
+	                    // Procesar datos del empleado
+						String nombreEmp = resultado.getString("nombre");
+						String apellido1 = resultado.getString("apellido1");
+						String apellido2 = resultado.getString("apellido2");
+						String dni = resultado.getString("dni");
+						String genero = resultado.getString("genero");
+						String puesto = resultado.getString("puesto");
+						String email = resultado.getString("email");
+						int nivelAcceso = Integer.parseInt(resultado.getString("nivel_acceso"));
+						byte[] foto = resultado.getBytes("foto");
+						String tag = resultado.getString("codigo_tag");
+						Empleado empleado = new Empleado(nombreEmp, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, foto, tag);
+						return empleado.crear();
+	                } else if (tipoEntidad.equals("temporal")) {
+	                    // Procesar datos del usuario temporal
+	                    String nombre = resultado.getString("nombre");
+	                    String apellido1 = resultado.getString("apellido1");
+	                    String apellido2 = resultado.getString("apellido2");
+	                    String dni = resultado.getString("dni");
+	                    String motivoVisita = resultado.getString("motivo_visita");
+	                    byte[] fotoBytes = resultado.getBytes("foto");
+	                    File fotoTemporal = null; // Inicializa como null
+	                    
+	                    if (fotoBytes != null && fotoBytes.length > 0) {
+	                        try {
+	                            // 2. Crear un archivo temporal (ej: "user_1234X_temp.jpg")
+	                            fotoTemporal = File.createTempFile("user_" + dni + "_", ".jpg");
+	                            
+	                            // 3. Escribir los bytes de la BBDD en ese archivo
+	                            Files.write(fotoTemporal.toPath(), fotoBytes);
+	                            
+	                            // Borrar el archivo cuando la app se cierre
+	                            fotoTemporal.deleteOnExit(); 
+	                            
+	                        } catch (IOException e) {
+	                            System.err.println("Error al crear el archivo temporal de la foto: " + e.getMessage());
+	                        }
+	                    }
+	                    String codigoTag = resultado.getString("codigo_tag");
+	                    VisitaTemporal temp = new VisitaTemporal(nombre, apellido1, apellido2, dni, motivoVisita, fotoTemporal, 0, codigoTag);
+	                    return temp.crear();
+	                }
+	            } else {
+	                System.out.println("No se encontraron datos para la entidad con ID: " + idEntidad);
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+	        System.out.println("No se ha podido obtener los datos completos: " + e.getMessage());
+	    }
+		return null;
+	}
+	
+	public void registrarEntradaSalida(int idEntidad) {
+		
+		String sql = "INSERT INTO registros (id_entidad, fecha_hora, tipo_registro) VALUES (?, ?, ?)";
+		
+		try (Connection conexion = conectar()){
+			
+			if(conexion != null) {
+				PreparedStatement sentencia = conexion.prepareStatement(sql);
+				sentencia.setInt(1, idEntidad);
+				sentencia.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+				sentencia.setString(3, "entrada"); // O "salida" según corresponda
+				
+				sentencia.executeUpdate();
+				System.out.println("Registro de entrada/salida añadido");
+			
+			}
+					
+				} catch(SQLException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+					System.out.println("No se ha podido registrar la entrada/salida: " + e.getMessage());
+				}
+		
+		
+	}
+	
 }
