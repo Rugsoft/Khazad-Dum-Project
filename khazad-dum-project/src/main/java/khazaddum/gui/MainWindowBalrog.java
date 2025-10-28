@@ -11,6 +11,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -296,19 +299,16 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		
 	}
 
-	private void registrarEntradaSalida(String idEntidad) {
+	private void actualizarTabla(String nombre, String apellido, String ts) {
+		
+		modelo.addRow(new Object[] {nombre, apellido, ts});
+		
+		
+	}
+
+	private void registrarEntradasYSalidas(int idEntidad) {
 		ConexionDB conex = new ConexionDB();
-		String resultado = conex.registrarEntradaSalida(idEntidad);
-		
-		if (resultado != null) {
-			modelo.setRowCount(0);
-			Object[][] historial = conex.obtenerHistorialDelDia();
-			
-			for (Object[] fila : historial) {
-				modelo.addRow(fila);
-			}
-		}
-		
+		conex.registrarEntradaSalida(idEntidad);
 	}
 
 	private void entradaUsuario() {
@@ -337,6 +337,14 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			   
 			    lblPicture.setIcon(null); 
 			}
+			
+			
+			DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"); 
+			String ts = LocalDateTime.now().format(f);
+			textHour.setText(ts);
+			
+			actualizarTabla(textName.getText(), textLastName1.getText(), ts);
+			
 		} else if (resultado.tipoEntidad().equals("temporal")) {
 			
 			Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
@@ -344,9 +352,9 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			textLastName1.setText(String.valueOf(usuario[1]));
 			textLasName2.setText(String.valueOf(usuario[2]));
 			textDNI.setText(String.valueOf(usuario[3]));
-			textGender.setText(String.valueOf(usuario[4]));
+			textGender.setText("N/A");
 			textRole.setText("Visita Temporal");
-			textEmail.setText(String.valueOf(usuario[5]));
+			textEmail.setText("N/A");
 			textAcces.setText("N/A");
 			if (usuario[6] != null && usuario[6] instanceof byte[]) {
 				
@@ -361,7 +369,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		}
 		
 		
-		registrarEntradaSalida(resultado.idEntidad());
+		registrarEntradasYSalidas(resultado.idEntidad());
 		
 			
 	}

@@ -336,13 +336,15 @@ public class ConexionDB {
 		
 		String sql = "INSERT INTO registros (id_entidad, fecha_hora, tipo_registro) VALUES (?, ?, ?)";
 		
+		String tipoRegistro = tipoRegistro(idEntidad);
+		
 		try (Connection conexion = conectar()){
 			
 			if(conexion != null) {
 				PreparedStatement sentencia = conexion.prepareStatement(sql);
 				sentencia.setInt(1, idEntidad);
 				sentencia.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
-				sentencia.setString(3, "entrada"); // O "salida" según corresponda
+				sentencia.setString(3, tipoRegistro);
 				
 				sentencia.executeUpdate();
 				System.out.println("Registro de entrada/salida añadido");
@@ -357,5 +359,51 @@ public class ConexionDB {
 		
 		
 	}
+	
+	public String tipoRegistro(int idEntidad) {
+        
+        String ultimoTipo = null; // Para guardar el último tipo de registro de hoy
+        
+        // Consulta para obtener el último registro de HOY
+        String sql = "SELECT tipo_registro FROM registros " +
+                     "WHERE id_entidad = ? AND DATE(fecha_hora) = CURDATE() " +
+                     "ORDER BY fecha_hora DESC LIMIT 1";
+
+        try (Connection con = ConexionDB.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setInt(1, idEntidad);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Si se encontró un registro de hoy, guardamos su tipo
+                    ultimoTipo = rs.getString("tipo_registro");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar el último registro: " + e.getMessage());
+            // En caso de error, es más seguro asumir 'entrada' para no bloquear
+            return "entrada"; 
+        }
+        
+        // --- Aquí está la lógica ---
+
+        if (ultimoTipo == null) {
+            // Caso 1: No hay registros hoy. El usuario está "fuera".
+            // El próximo registro es ENTRADA.
+            return "entrada";
+            
+        } else if ("entrada".equals(ultimoTipo)) {
+            // Caso 2: El último registro fue 'entrada'. El usuario está "dentro".
+            // El próximo registro es SALIDA.
+            return "salida";
+            
+        } else {
+            // Caso 3: El último registro fue 'salida'. El usuario está "fuera".
+            // El próximo registro es ENTRADA.
+            return "entrada";
+        }
+    }
 	
 }
