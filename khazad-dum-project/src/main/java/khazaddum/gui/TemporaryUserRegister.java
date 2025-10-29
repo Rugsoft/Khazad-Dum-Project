@@ -54,6 +54,7 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 		setTitle("Registro Temporal");
 		getContentPane().setBackground(new Color(0, 128, 128));
 		getContentPane().setLayout(null);
+		setLocationRelativeTo(null); // Centra la ventana
 		
 		elementosVisuales();
 		
@@ -200,18 +201,18 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 
 	private void registerTempUser(String nombre, String apellido1, String apellido2, String dni, String motivo, int horas, File foto, String codigoTag) {
 
-		// Asumimos que has modificado VisitaTemporal para aceptar el tag
+		
 		VisitaTemporal tempUser = new VisitaTemporal(nombre, apellido1, apellido2, dni, motivo, foto, horas, codigoTag);
 				
 		try {
-			// Asumimos que crear() y añadirUsuarioTemporal() están listos para manejar el tag
+			
 			ConexionDB.añadirUsuarioTemporal(tempUser.crear()); 
 		} catch (FileNotFoundException e) {
 			System.out.println("No se encontro el fichero: " + e.getMessage());
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error al guardar la imagen: " + e.getMessage(), "Error de Fichero", JOptionPane.ERROR_MESSAGE);
 		} catch (Exception e) {
-			// Captura genérica para otros errores (ej. SQL)
+			// Captura genérica para otros errores
 			System.out.println("Error al registrar: " + e.getMessage());
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error al registrar en la base de datos: " + e.getMessage(), "Error de DB", JOptionPane.ERROR_MESSAGE);

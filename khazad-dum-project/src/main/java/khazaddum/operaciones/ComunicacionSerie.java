@@ -29,17 +29,17 @@ public class ComunicacionSerie implements SerialPortDataListener {
             return false;
         }
 
-        // 1. Inicializa el BufferedReader (igual que antes)
+        // 1. Inicializo el BufferedReader
         serialReader = new BufferedReader(new InputStreamReader(puertoSerie.getInputStream()));
         
-        // 2. Registra ESTA CLASE (this) como el listener
+        // 2. Registro ESTA CLASE (this) como el listener
         puertoSerie.addDataListener(this);
         System.out.println("Puerto conectado y listener registrado.");
         return true;
     }
 
     /**
-     * Tu método de envío (sin cambios)
+     * Método de envío de un carácter al dispositivo serie.
      */
     public boolean enviarLetra(char valor) {
         try {

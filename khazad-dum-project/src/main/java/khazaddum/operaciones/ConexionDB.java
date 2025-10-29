@@ -114,9 +114,15 @@ public class ConexionDB {
 		return null;
 	}
 	
-	public Empleado buscarEmpleadoPorNombredeTabla(String nombre, String apellido) {
+	public ResultadoIdentificacion buscarEmpleadoPorNombredeTabla(String nombre, String apellido) {
 		
-		String sql = "SELECT * FROM empleados WHERE nombre = ? AND apellido1 = ?";
+		String sql = "(SELECT E.id_entidad, E.tipo_entidad, EM.nombre, EM.apellido1, EM.apellido2 " +
+                " FROM empleados EM JOIN entidades E ON EM.id_entidad = E.id_entidad " +
+                " WHERE EM.nombre = ? AND EM.apellido1 = ?) " +
+                "UNION ALL " +
+                "(SELECT E.id_entidad, E.tipo_entidad, UT.nombre, UT.apellido1, UT.apellido2 " +
+                " FROM usuarios_temporales UT JOIN entidades E ON UT.id_entidad = E.id_entidad " +
+                " WHERE UT.nombre = ? AND UT.apellido1 = ?)";
 		
 		try (Connection conexion = conectar()){
 			
@@ -124,40 +130,30 @@ public class ConexionDB {
 				PreparedStatement sentencia = conexion.prepareStatement(sql);
 				sentencia.setString(1, nombre);
 				sentencia.setString(2, apellido);
+				sentencia.setString(3, nombre);
+				sentencia.setString(4, apellido);
 				
 				ResultSet resultado = sentencia.executeQuery();
-				boolean encontrado = true;
 				
-				while (resultado.next()) {
-					
-					if (encontrado) {
-						
-						int idEntidad = resultado.getInt("id_entidad");
-						String nombreEmp = resultado.getString("nombre");
-						String apellido1 = resultado.getString("apellido1");
-						String apellido2 = resultado.getString("apellido2");
-						String dni = resultado.getString("dni");
-						String genero = resultado.getString("genero");
-						String puesto = resultado.getString("puesto");
-						String email = resultado.getString("email");
-						int nivelAcceso = Integer.parseInt(resultado.getString("nivel_acceso"));
-						byte[] foto = resultado.getBytes("foto");
-						String tag = resultado.getString("codigo_tag");
-						Empleado empleado = new Empleado(nombreEmp, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, foto, tag);
-						encontrado = false;
-						return empleado;
-					
-					}
-					
+				if (resultado.next()) {
+					int idEntidad = resultado.getInt("id_entidad");
+                    String tipoEntidad = resultado.getString("tipo_entidad");
+                    return new ResultadoIdentificacion(idEntidad, tipoEntidad);
+                    
+				} else {
+					System.out.println("Tag no encontrado");
+					return null;
 				}
-				
 			}
+			
 		} catch(SQLException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-			System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+			System.out.println("No se ha podido comprobar el tag: " + e.getMessage());
+			return null;
 		}
 		return null;
+		
 	}
 	
 	public static void añadirUsuarioTemporal(Object[] datos) throws FileNotFoundException {
@@ -222,7 +218,8 @@ public class ConexionDB {
                 "UNION ALL " +
                 "(SELECT E.id_entidad, E.tipo_entidad, UT.nombre, UT.apellido1 " +
                 " FROM usuarios_temporales UT JOIN entidades E ON UT.id_entidad = E.id_entidad " +
-                " WHERE UT.codigo_tag = ?)";
+                " WHERE UT.codigo_tag = ?)" +
+                "AND (UT.fecha_expiracion IS NULL OR UT.fecha_expiracion > NOW())";
 		
 		try (Connection conexion = conectar()){
 			
@@ -302,13 +299,13 @@ public class ConexionDB {
 	                    
 	                    if (fotoBytes != null && fotoBytes.length > 0) {
 	                        try {
-	                            // 2. Crear un archivo temporal (ej: "user_1234X_temp.jpg")
+	                            // Creo un archivo temporal para la foto
 	                            fotoTemporal = File.createTempFile("user_" + dni + "_", ".jpg");
 	                            
-	                            // 3. Escribir los bytes de la BBDD en ese archivo
+	                            // Escribo los bytes de la foto en el archivo temporal
 	                            Files.write(fotoTemporal.toPath(), fotoBytes);
 	                            
-	                            // Borrar el archivo cuando la app se cierre
+	                            // Borro el archivo cuando la app se cierre
 	                            fotoTemporal.deleteOnExit(); 
 	                            
 	                        } catch (IOException e) {
@@ -387,14 +384,13 @@ public class ConexionDB {
             return "entrada"; 
         }
         
-        // --- Aquí está la lógica ---
 
         if (ultimoTipo == null) {
             // Caso 1: No hay registros hoy. El usuario está "fuera".
             // El próximo registro es ENTRADA.
             return "entrada";
             
-        } else if ("entrada".equals(ultimoTipo)) {
+        } else if (ultimoTipo.equals("entrada")) {
             // Caso 2: El último registro fue 'entrada'. El usuario está "dentro".
             // El próximo registro es SALIDA.
             return "salida";
