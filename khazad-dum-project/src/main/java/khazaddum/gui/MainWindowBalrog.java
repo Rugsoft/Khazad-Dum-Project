@@ -53,6 +53,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 	private JButton btnTempUser;
 	private ComunicacionSerie miConexion;
     private String mensajeDeArduino = "";
+    private javax.swing.Timer clearDataTimer;
 
 	public MainWindowBalrog(String user, String nivel) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,10 +61,10 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		setResizable(false);
 		setTitle("Khazzad-Dûm Pro");
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setLocationRelativeTo(null);
 		setBounds(100, 100, 1044, 588);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLocationRelativeTo(null);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
@@ -146,7 +147,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		textName.setEditable(false);
 		textName.setBackground(new Color(128, 128, 255));
 		textName.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Nombre", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		textName.setBounds(195, 59, 148, 34);
+		textName.setBounds(195, 59, 148, 40);
 		panel_1.add(textName);
 		textName.setColumns(10);
 		
@@ -155,7 +156,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		textLastName1.setColumns(10);
 		textLastName1.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "1er Apellido", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		textLastName1.setBackground(new Color(128, 128, 255));
-		textLastName1.setBounds(353, 59, 148, 34);
+		textLastName1.setBounds(353, 59, 148, 40);
 		panel_1.add(textLastName1);
 		
 		textLasName2 = new JTextField();
@@ -163,7 +164,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		textLasName2.setColumns(10);
 		textLasName2.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "2do Apellido", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		textLasName2.setBackground(new Color(128, 128, 255));
-		textLasName2.setBounds(511, 59, 148, 34);
+		textLasName2.setBounds(511, 59, 148, 40);
 		panel_1.add(textLasName2);
 		
 		textDNI = new JTextField();
@@ -171,7 +172,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		textDNI.setColumns(10);
 		textDNI.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "DNI", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		textDNI.setBackground(new Color(128, 128, 255));
-		textDNI.setBounds(195, 103, 148, 34);
+		textDNI.setBounds(195, 103, 148, 40);
 		panel_1.add(textDNI);
 		
 		textEmail = new JTextField();
@@ -179,7 +180,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		textEmail.setColumns(10);
 		textEmail.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Email", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		textEmail.setBackground(new Color(128, 128, 255));
-		textEmail.setBounds(353, 103, 148, 34);
+		textEmail.setBounds(353, 103, 148, 40);
 		panel_1.add(textEmail);
 		
 		textGender = new JTextField();
@@ -187,7 +188,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		textGender.setColumns(10);
 		textGender.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Genero", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		textGender.setBackground(new Color(128, 128, 255));
-		textGender.setBounds(511, 103, 148, 34);
+		textGender.setBounds(511, 103, 148, 40);
 		panel_1.add(textGender);
 		
 		textRole = new JTextField();
@@ -195,7 +196,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		textRole.setColumns(10);
 		textRole.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Puesto", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		textRole.setBackground(new Color(128, 128, 255));
-		textRole.setBounds(195, 147, 148, 34);
+		textRole.setBounds(195, 147, 148, 40);
 		panel_1.add(textRole);
 		
 		textAcces = new JTextField();
@@ -203,7 +204,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		textAcces.setColumns(10);
 		textAcces.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "N.Acceso", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		textAcces.setBackground(new Color(128, 128, 255));
-		textAcces.setBounds(353, 147, 148, 34);
+		textAcces.setBounds(353, 147, 148, 40);
 		panel_1.add(textAcces);
 		
 		textHour = new JTextField();
@@ -211,7 +212,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		textHour.setColumns(10);
 		textHour.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Hora Entrada/Salida", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		textHour.setBackground(new Color(128, 128, 255));
-		textHour.setBounds(511, 147, 148, 34);
+		textHour.setBounds(511, 147, 214, 40);
 		panel_1.add(textHour);
 		
 		btnTempUser = new JButton("Registrar Usuario temporal");
@@ -244,8 +245,22 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 	
 	private void usuarioTemporal() {
 		
+		final SerialDataCallback mainCallback = this;
+		
 		TemporaryUserRegister dialog = new TemporaryUserRegister();
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		
+		miConexion.setSerialDataCallback(dialog);
+		
+		dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+	        @Override
+	        public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+	            
+	            System.out.println("Diálogo cerrado. Devolviendo callback a MainWindow...");
+	            miConexion.setSerialDataCallback(mainCallback);
+	        }
+	    });
+		
 		dialog.setVisible(true);
 	}
 
@@ -260,27 +275,55 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			String entradaSalida = modelo.getValueAt(fila, 2).toString();
 			
 			ConexionDB conex = new ConexionDB();
-			Empleado empleado = conex.buscarEmpleadoPorNombredeTabla(nombre, apellido1);
+			ResultadoIdentificacion result= conex.buscarEmpleadoPorNombredeTabla(nombre, apellido1);
+			Object[] usuario = conex.obtenerDatosCompletos(result.idEntidad(), result.tipoEntidad());
 			
-			Object[] datos = empleado.crear();
-			textName.setText(String.valueOf(datos[0]));
-			textLastName1.setText(String.valueOf(datos[1]));
-			textLasName2.setText(String.valueOf(datos[2]));
-			textDNI.setText(String.valueOf(datos[3]));
-			textGender.setText(String.valueOf(datos[4]));
-			textRole.setText(String.valueOf(datos[5]));
-			textEmail.setText(String.valueOf(datos[6]));
-			textAcces.setText(String.valueOf(datos[7]));
-			
-			if (datos[8] != null && datos[8] instanceof byte[]) {
+			if (result.tipoEntidad().equals("empleado")) {
 				
-			    byte[] fotoBytes = (byte[]) datos[8];
-			    javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoBytes);
-			    lblPicture.setIcon(icono); 
-			    
-			} else {
-			   
-			    lblPicture.setIcon(null); 
+				textName.setText(String.valueOf(usuario[0]));
+				textLastName1.setText(String.valueOf(usuario[1]));
+				textLasName2.setText(String.valueOf(usuario[2]));
+				textDNI.setText(String.valueOf(usuario[3]));
+				textGender.setText(String.valueOf(usuario[4]));
+				textRole.setText(String.valueOf(usuario[5]));
+				textEmail.setText(String.valueOf(usuario[6]));
+				textAcces.setText(String.valueOf(usuario[7]));
+				if (usuario[8] != null && usuario[8] instanceof java.io.File) {
+			        
+					java.io.File fotoFile = (java.io.File) usuario[8];
+		            // Creo el icono original
+		            javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoFile.getAbsolutePath());
+		            // Llamo al nuevo método para que lo escale y lo muestre
+		            mostrarFotoEscalada(icono); 
+				    
+				} else {
+				   
+				    lblPicture.setIcon(null); 
+				}
+				
+				
+			} else if (result.tipoEntidad().equals("temporal")) {
+				
+				textName.setText(String.valueOf(usuario[0]));
+				textLastName1.setText(String.valueOf(usuario[1]));
+				textLasName2.setText(String.valueOf(usuario[2]));
+				textDNI.setText(String.valueOf(usuario[3]));
+				textGender.setText("N/A");
+				textRole.setText("Visita Temporal");
+				textEmail.setText("N/A");
+				textAcces.setText("N/A");
+				if (usuario[5] != null && usuario[5] instanceof java.io.File) {
+			        
+					java.io.File fotoFile = (java.io.File) usuario[5];
+		            // Creo el icono original
+		            javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoFile.getAbsolutePath());
+		            // Llamo al nuevo método para que lo escale y lo muestre
+		            mostrarFotoEscalada(icono);
+				    
+				} else {
+				   
+				    lblPicture.setIcon(null); 
+				}
 			}
 			
 			textHour.setText(entradaSalida);
@@ -302,6 +345,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 	private void actualizarTabla(String nombre, String apellido, String ts) {
 		
 		modelo.addRow(new Object[] {nombre, apellido, ts});
+		table.setModel(modelo);
 		
 		
 	}
@@ -313,31 +357,71 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 
 	private void entradaUsuario() {
 		
-		ConexionDB conex = new ConexionDB();
-		ResultadoIdentificacion resultado = conex.buscarEmpleadoPorTag(mensajeDeArduino);
+		if (clearDataTimer != null && clearDataTimer.isRunning()) {
+	        clearDataTimer.stop();
+	    }
 		
-		if (resultado.tipoEntidad().equals("empleado")) {
+		try {
 			
-			Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
-			textName.setText(String.valueOf(usuario[0]));
-			textLastName1.setText(String.valueOf(usuario[1]));
-			textLasName2.setText(String.valueOf(usuario[2]));
-			textDNI.setText(String.valueOf(usuario[3]));
-			textGender.setText(String.valueOf(usuario[4]));
-			textRole.setText(String.valueOf(usuario[5]));
-			textEmail.setText(String.valueOf(usuario[6]));
-			textAcces.setText(String.valueOf(usuario[7]));
-			if (usuario[8] != null && usuario[8] instanceof byte[]) {
+			ConexionDB conex = new ConexionDB();
+			ResultadoIdentificacion resultado = conex.buscarEmpleadoPorTag(mensajeDeArduino);
+			
+	        // Si es nulo (tag no encontrado), limpiamos campos y salimos del método.
+	        if (resultado == null) {
+	            System.err.println("Tag no reconocido: " + mensajeDeArduino);
+	            limpiarCampos();
+	            return; // Salimos para no ejecutar el código de abajo
+	        }
+	        
+	        if (resultado.tipoEntidad().equals("empleado")) {
 				
-			    byte[] fotoBytes = (byte[]) usuario[8];
-			    javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoBytes);
-			    lblPicture.setIcon(icono); 
-			    
-			} else {
-			   
-			    lblPicture.setIcon(null); 
+				Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
+				textName.setText(String.valueOf(usuario[0]));
+				textLastName1.setText(String.valueOf(usuario[1]));
+				textLasName2.setText(String.valueOf(usuario[2]));
+				textDNI.setText(String.valueOf(usuario[3]));
+				textGender.setText(String.valueOf(usuario[4]));
+				textRole.setText(String.valueOf(usuario[5]));
+				textEmail.setText(String.valueOf(usuario[6]));
+				textAcces.setText(String.valueOf(usuario[7]));
+				if (usuario[8] != null && usuario[8] instanceof java.io.File) {
+			        
+					java.io.File fotoFile = (java.io.File) usuario[8];
+		            // Creo el icono original
+		            javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoFile.getAbsolutePath());
+		            // Llamo al nuevo método para que lo escale y lo muestre
+		            mostrarFotoEscalada(icono); 
+				    
+				} else {
+				   
+				    lblPicture.setIcon(null); 
+				}
+				
+				
+			} else if (resultado.tipoEntidad().equals("temporal")) {
+				
+				Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
+				textName.setText(String.valueOf(usuario[0]));
+				textLastName1.setText(String.valueOf(usuario[1]));
+				textLasName2.setText(String.valueOf(usuario[2]));
+				textDNI.setText(String.valueOf(usuario[3]));
+				textGender.setText("N/A");
+				textRole.setText("Visita Temporal");
+				textEmail.setText("N/A");
+				textAcces.setText("N/A");
+				if (usuario[5] != null && usuario[5] instanceof java.io.File) {
+			        
+					java.io.File fotoFile = (java.io.File) usuario[5];
+		            // Creo el icono original
+		            javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoFile.getAbsolutePath());
+		            // Llamo al nuevo método para que lo escale y lo muestre
+		            mostrarFotoEscalada(icono);
+				    
+				} else {
+				   
+				    lblPicture.setIcon(null); 
+				}
 			}
-			
 			
 			DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"); 
 			String ts = LocalDateTime.now().format(f);
@@ -345,32 +429,52 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			
 			actualizarTabla(textName.getText(), textLastName1.getText(), ts);
 			
-		} else if (resultado.tipoEntidad().equals("temporal")) {
-			
-			Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
-			textName.setText(String.valueOf(usuario[0]));
-			textLastName1.setText(String.valueOf(usuario[1]));
-			textLasName2.setText(String.valueOf(usuario[2]));
-			textDNI.setText(String.valueOf(usuario[3]));
-			textGender.setText("N/A");
-			textRole.setText("Visita Temporal");
-			textEmail.setText("N/A");
-			textAcces.setText("N/A");
-			if (usuario[6] != null && usuario[6] instanceof byte[]) {
-				
-			    byte[] fotoBytes = (byte[]) usuario[6];
-			    javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoBytes);
-			    lblPicture.setIcon(icono); 
-			    
-			} else {
-			   
-			    lblPicture.setIcon(null); 
+			registrarEntradasYSalidas(resultado.idEntidad());
+		} catch (Exception e) {
+	        // 1. Imprimo el error en la consola para saber qué pasó
+	        System.err.println("Error al procesar el tag: " + e.getMessage());
+	        e.printStackTrace();
+	        
+	        // 2. Limpio los campos para que el usuario vea que el tag falló
+	        limpiarCampos();
+	    }
+		
+		// Inicio un temporizador para limpiar los datos después de 10 segundos
+		clearDataTimer = new javax.swing.Timer(10000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				limpiarCampos();
 			}
-		}
+		});
+		clearDataTimer.setRepeats(false); // Solo se ejecuta una vez
+		clearDataTimer.start();
+		miConexion.enviarLetra('P'); // Enviar señal de confirmación a Arduino
+	}
+
+	private void limpiarCampos() {
+		textName.setText("");
+		textLastName1.setText("");
+		textLasName2.setText("");
+		textDNI.setText("");
+		textGender.setText("");
+		textRole.setText("");
+		textEmail.setText("");
+		textAcces.setText("");
+		textHour.setText("");
+		lblPicture.setIcon(null);
 		
+	}
+
+	private void mostrarFotoEscalada(ImageIcon iconoOriginal) {
 		
-		registrarEntradasYSalidas(resultado.idEntidad());
+		// Escalo la imagen al tamaño del JLabel
+	    int anchoLabel = lblPicture.getWidth();
+	    int altoLabel = lblPicture.getHeight();
+	    java.awt.Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(anchoLabel, altoLabel, java.awt.Image.SCALE_SMOOTH);
+	    ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
+	    
+	    // Establezco el icono escalado en el JLabel
+	    lblPicture.setIcon(iconoEscalado);
 		
-			
 	}
 }	
