@@ -218,8 +218,8 @@ public class ConexionDB {
                 "UNION ALL " +
                 "(SELECT E.id_entidad, E.tipo_entidad, UT.nombre, UT.apellido1 " +
                 " FROM usuarios_temporales UT JOIN entidades E ON UT.id_entidad = E.id_entidad " +
-                " WHERE UT.codigo_tag = ?)" +
-                "AND (UT.fecha_expiracion IS NULL OR UT.fecha_expiracion > NOW())";
+                " WHERE UT.codigo_tag = ? " + 
+                " AND UT.fecha_expiracion > NOW())"; 
 		
 		try (Connection conexion = conectar()){
 			

@@ -162,17 +162,18 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 		}
 		if (btnRegisterTemp == e.getSource()) {
 			
-			
-			// 1. Recoger y validar los datos actuales
-			String nombre = textName.getText();
-			String apellido1 = textLasName1.getText();
-			String apellido2 = textLastName2.getText();
-			String dni = textDNI.getText();
-			String motivo = textReason.getText();
-			int horas = Integer.parseInt(comboTime.getSelectedItem().toString());
-						
+					
 			// Validación simple
-			if ( !nombre.isEmpty() && !apellido1.isEmpty() && !dni.isEmpty() && !motivo.isEmpty() && comboTime.getSelectedIndex() != 0 && selectedPicture != null ) {
+			if ( !textName.getText().isEmpty() && !textLasName1.getText().isEmpty() && !textLastName2.getText().isEmpty() && !textDNI.getText().isEmpty() && 
+				 !textReason.getText().isEmpty() && comboTime.getSelectedIndex() != 0 && selectedPicture != null ) {
+				
+				// 1. Recoger y validar los datos actuales
+				String nombre = textName.getText();
+				String apellido1 = textLasName1.getText();
+				String apellido2 = textLastName2.getText();
+				String dni = textDNI.getText();
+				String motivo = textReason.getText();
+				int horas = Integer.parseInt(comboTime.getSelectedItem().toString());
 				
 				miConexion = new ComunicacionSerie();
 				miConexion.setSerialDataCallback(this);
@@ -180,22 +181,24 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 				
 				JOptionPane.showMessageDialog(this, "Por favor, acerque el tag RFID al lector.", "Informacion", JOptionPane.INFORMATION_MESSAGE);
 				
+				// 3. Recoger el resultado del diálogo RFID
+				String codigoTag = mensajeDeArduino;
+							
+				// 4. Continuar solo si se leyó un tag
+				if (codigoTag != null && !codigoTag.isEmpty()) {
+					// 5. Llamar al registro CON TODOS los datos
+					registerTempUser(nombre, apellido1, apellido2, dni, motivo, horas, selectedPicture, codigoTag);
+					this.dispose(); // Cierra la ventana de registro
+				} else {
+					// El usuario cerró el diálogo RFID o no se leyó nada
+					JOptionPane.showMessageDialog(this, "Registro cancelado. No se leyó ningún tag RFID.", "Cancelado", JOptionPane.WARNING_MESSAGE);
+				}
+				
 			} else {
 				JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos y seleccione una foto.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
 				return;
 			}		
-			// 3. Recoger el resultado del diálogo RFID
-			String codigoTag = mensajeDeArduino;
-						
-			// 4. Continuar solo si se leyó un tag
-			if (codigoTag != null && !codigoTag.isEmpty()) {
-				// 5. Llamar al registro CON TODOS los datos
-				registerTempUser(nombre, apellido1, apellido2, dni, motivo, horas, selectedPicture, codigoTag);
-				this.dispose(); // Cierra la ventana de registro
-			} else {
-				// El usuario cerró el diálogo RFID o no se leyó nada
-				JOptionPane.showMessageDialog(this, "Registro cancelado. No se leyó ningún tag RFID.", "Cancelado", JOptionPane.WARNING_MESSAGE);
-			}
+			
 		}
 	}
 

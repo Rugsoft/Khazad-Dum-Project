@@ -266,6 +266,10 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 
 	private void prepararUsuario() {
 		
+		if (clearDataTimer != null && clearDataTimer.isRunning()) {
+	        clearDataTimer.stop();
+	    }
+		
 		int fila = table.getSelectedRow();
 		
 		if(fila != -1) {
@@ -327,6 +331,15 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			}
 			
 			textHour.setText(entradaSalida);
+			// Inicio un temporizador para limpiar los datos después de 10 segundos
+			clearDataTimer = new javax.swing.Timer(10000, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					limpiarCampos();
+				}
+			});
+			clearDataTimer.setRepeats(false); // Solo se ejecuta una vez
+			clearDataTimer.start();
 		
 		
 		}
