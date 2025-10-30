@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
@@ -27,6 +28,8 @@ public class ConexionDB {
 	private static final String URL = "jdbc:mysql://127.0.0.1:3306/khazad-dum-db";
 	private static final String Usuario = "root";
 	private static final String Contraseña = "";
+	ArrayList<Empleado> empList;
+	ArrayList<VisitaTemporal> tempList;
 	
 	static {
 		
@@ -156,6 +159,55 @@ public class ConexionDB {
 		
 	}
 	
+	public static void añadirEmpleado(Object[] datos) throws FileNotFoundException {
+		
+		String sqlEntidad = "INSERT INTO entidades (tipo_entidad) VALUES ('empleado')";
+		String sqlEmpleado = "INSERT INTO empleados (id_entidad, nombre, apellido1, apellido2, dni, genero, puesto, email, nivel_acceso, foto, codigo_tag) " +
+				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		
+		int idEntidad = -1;
+		
+		try (Connection conexion = conectar()){
+			
+			if(conexion != null) {
+				
+				PreparedStatement psEntidad = conexion.prepareStatement(sqlEntidad, Statement.RETURN_GENERATED_KEYS);
+				psEntidad.executeUpdate();
+				ResultSet rsKeys = psEntidad.getGeneratedKeys();
+				
+				if (rsKeys.next()) {
+					idEntidad = rsKeys.getInt(1);
+					
+				} else {
+	                throw new SQLException("No se pudo obtener el ID de la entidad.");
+	            }
+				
+				PreparedStatement psEmpleado = conexion.prepareStatement(sqlEmpleado);
+				psEmpleado.setInt(1, idEntidad);
+				
+				for(int i = 0; i < datos.length; i++) {
+					if (i == 8) {
+						File picture = (File) datos[i];
+						InputStream inputStream = new FileInputStream(picture);
+						psEmpleado.setBinaryStream(10, inputStream, (int) picture.length());
+					} else {
+						psEmpleado.setObject(i + 2, datos[i]);
+					}
+					
+				}
+				psEmpleado.executeUpdate();
+				JOptionPane.showMessageDialog(null, "Empleado añadido", "INFO", JOptionPane.INFORMATION_MESSAGE);
+			
+			}
+					
+				} catch(SQLException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+					System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+				}
+				
+		}
+	
 	public static void añadirUsuarioTemporal(Object[] datos) throws FileNotFoundException {
 		
 		String sqlEntidad = "INSERT INTO entidades (tipo_entidad) VALUES ('temporal')";
@@ -284,9 +336,27 @@ public class ConexionDB {
 						String email = resultado.getString("email");
 						int nivelAcceso = Integer.parseInt(resultado.getString("nivel_acceso"));
 						byte[] foto = resultado.getBytes("foto");
+						File fotoTemporal = null; // Inicializa como null
+	                    
+	                    if (foto != null && foto.length > 0) {
+	                        try {
+	                            // Creo un archivo temporal para la foto
+	                            fotoTemporal = File.createTempFile("user_" + dni + "_", ".jpg");
+	                            
+	                            // Escribo los bytes de la foto en el archivo temporal
+	                            Files.write(fotoTemporal.toPath(), foto);
+	                            
+	                            // Borro el archivo cuando la app se cierre
+	                            fotoTemporal.deleteOnExit(); 
+	                            
+	                        } catch (IOException e) {
+	                            System.err.println("Error al crear el archivo temporal de la foto: " + e.getMessage());
+	                        }
+	                    }
 						String tag = resultado.getString("codigo_tag");
-						Empleado empleado = new Empleado(nombreEmp, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, foto, tag);
+						Empleado empleado = new Empleado(nombreEmp, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, fotoTemporal, tag);
 						return empleado.crear();
+						
 	                } else if (tipoEntidad.equals("temporal")) {
 	                    // Procesar datos del usuario temporal
 	                    String nombre = resultado.getString("nombre");
@@ -402,4 +472,41 @@ public class ConexionDB {
         }
     }
 	
+	public ArrayList<Empleado> obtenerEmpleados(String sql) {
+		
+		
+		ArrayList<Empleado> empList = new ArrayList<Empleado>();
+		
+		try (Connection conexion = conectar()){
+			
+			if(conexion != null) {
+				PreparedStatement sentencia = conexion.prepareStatement(sql);
+				
+				ResultSet resultado = sentencia.executeQuery();
+				
+				while (resultado.next()) {
+					
+					String nombre = resultado.getString("nombre");
+					String apellido1 = resultado.getString("apellido1");
+					String apellido2 = resultado.getString("apellido2");
+					String dni = resultado.getString("dni");
+					String genero = resultado.getString("genero");
+					String puesto = resultado.getString("puesto");
+					String email = resultado.getString("email");
+					int nivelAcceso = resultado.getInt("nivel_acceso");
+					
+					Empleado emp = new Empleado(nombre, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, null, null);
+					empList.add(emp);
+				}
+				
+			}
+					
+				} catch(SQLException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+					System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+				}
+		
+		return empList;
+	}
 }

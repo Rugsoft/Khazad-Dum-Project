@@ -1,5 +1,7 @@
 package khazaddum.modelo;
 
+import java.io.File;
+
 public class Empleado {
 
 	 private String name;
@@ -10,11 +12,11 @@ public class Empleado {
 	 private String puesto;
 	 private String email;
 	 private int nivelAcceso;
-	 private byte[] foto;
+	 private File foto;
 	 private String tag;
 	 
 	 public Empleado(String name, String lastName1, String lastName2, String dni, String genero, String puesto,
-			String email, int nivelAcceso, byte[] foto, String tag) {
+			String email, int nivelAcceso, File foto, String tag) {
 
 		this.name = name;
 		this.lastName1 = lastName1;
@@ -97,11 +99,11 @@ public class Empleado {
 		 this.nivelAcceso = nivelAcceso;
 	 }
 
-	 public byte[] getFoto() {
+	 public File getFoto() {
 		 return foto;
 	 }
 
-	 public void setFoto(byte[] foto) {
+	 public void setFoto(File foto) {
 		 this.foto = foto;
 	 }
 	 
