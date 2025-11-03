@@ -211,7 +211,7 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
 				// 4. Continuar solo si se leyó un tag
 				if (codigoTag != null && !codigoTag.isEmpty()) {
 					// 5. Llamar al registro CON TODOS los datos
-					Empleado emp = new Empleado(nombre, apellido1, apellido2, dni, genero, role, email, nivelAcceso, selectedPicture, codigoTag);
+					Empleado emp = new Empleado(0, nombre, apellido1, apellido2, dni, genero, role, email, nivelAcceso, selectedPicture, codigoTag);
 					registerEmployee(emp);
 					miConexion.desconectar();
 					this.dispose(); // Cierra la ventana de registro

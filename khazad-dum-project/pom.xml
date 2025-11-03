@@ -9,6 +9,13 @@
     <maven.compiler.target>21</maven.compiler.target>
   </properties>
   
+  <repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+	</repositories>
+  
   <dependencies>
     <!-- jSerialComm para comunicación serial -->
     <dependency>
@@ -16,6 +23,16 @@
       <artifactId>jSerialComm</artifactId>
       <version>2.11.2</version>
     </dependency>
+    
+      <!-- LGoodDatePicker para seleccionar fechas en swing -->
+  	<dependency>
+    <groupId>com.github.lgooddatepicker</groupId>
+    <artifactId>LGoodDatePicker</artifactId>
+    <version>11.2.1</version>
+	</dependency>
+    
   </dependencies>
+  
+ 
   
 </project>

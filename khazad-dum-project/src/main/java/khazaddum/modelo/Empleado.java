@@ -4,6 +4,7 @@ import java.io.File;
 
 public class Empleado {
 
+	 private int idEmpleado;
 	 private String name;
 	 private String lastName1;
 	 private String lastName2;
@@ -15,9 +16,10 @@ public class Empleado {
 	 private File foto;
 	 private String tag;
 	 
-	 public Empleado(String name, String lastName1, String lastName2, String dni, String genero, String puesto,
+	 public Empleado(int idEmpleado, String name, String lastName1, String lastName2, String dni, String genero, String puesto,
 			String email, int nivelAcceso, File foto, String tag) {
 
+		this.idEmpleado = idEmpleado;
 		this.name = name;
 		this.lastName1 = lastName1;
 		this.lastName2 = lastName2;
@@ -31,7 +33,7 @@ public class Empleado {
 	 }
 	 
 	 public Object[] crear() {
-			return new Object[] {name, lastName1, lastName2, dni, genero, puesto, email, nivelAcceso, foto, tag};
+			return new Object[] {idEmpleado, name, lastName1, lastName2, dni, genero, puesto, email, nivelAcceso, foto, tag};
 		}
 	 
 

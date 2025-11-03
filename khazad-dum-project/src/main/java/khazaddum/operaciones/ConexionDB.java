@@ -185,13 +185,13 @@ public class ConexionDB {
 				PreparedStatement psEmpleado = conexion.prepareStatement(sqlEmpleado);
 				psEmpleado.setInt(1, idEntidad);
 				
-				for(int i = 0; i < datos.length; i++) {
+				for(int i = 1; i < datos.length; i++) {
 					if (i == 8) {
 						File picture = (File) datos[i];
 						InputStream inputStream = new FileInputStream(picture);
 						psEmpleado.setBinaryStream(10, inputStream, (int) picture.length());
 					} else {
-						psEmpleado.setObject(i + 2, datos[i]);
+						psEmpleado.setObject(i + 1, datos[i]);
 					}
 					
 				}
@@ -234,7 +234,7 @@ public class ConexionDB {
 				PreparedStatement psTemporal = conexion.prepareStatement(sqlTemporal);
 				psTemporal.setInt(1, idEntidad);
 				
-				for(int i = 0; i < datos.length; i++) {
+				for(int i = 1; i < datos.length - 1 ; i++) {
 					if (i == 5) {
 						File picture = (File) datos[i];
 						InputStream inputStream = new FileInputStream(picture);
@@ -327,6 +327,7 @@ public class ConexionDB {
 	            if (resultado.next()) {
 	                if (tipoEntidad.equals("empleado")) {
 	                    // Procesar datos del empleado
+	                	int idEmp = resultado.getInt("id_entidad");
 						String nombreEmp = resultado.getString("nombre");
 						String apellido1 = resultado.getString("apellido1");
 						String apellido2 = resultado.getString("apellido2");
@@ -354,7 +355,7 @@ public class ConexionDB {
 	                        }
 	                    }
 						String tag = resultado.getString("codigo_tag");
-						Empleado empleado = new Empleado(nombreEmp, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, fotoTemporal, tag);
+						Empleado empleado = new Empleado(idEmp, nombreEmp, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, fotoTemporal, tag);
 						return empleado.crear();
 						
 	                } else if (tipoEntidad.equals("temporal")) {
@@ -383,7 +384,7 @@ public class ConexionDB {
 	                        }
 	                    }
 	                    String codigoTag = resultado.getString("codigo_tag");
-	                    VisitaTemporal temp = new VisitaTemporal(nombre, apellido1, apellido2, dni, motivoVisita, fotoTemporal, 0, codigoTag);
+	                    VisitaTemporal temp = new VisitaTemporal(0, nombre, apellido1, apellido2, dni, motivoVisita, fotoTemporal, 0, codigoTag, null);
 	                    return temp.crear();
 	                }
 	            } else {
@@ -472,6 +473,63 @@ public class ConexionDB {
         }
     }
 	
+	public void actualizarEmpleado(int idEmpleado,String name,String lastName1,String lastName2,String dni,String genero,String puesto,String email,int nivelAcceso) {
+		
+		String sql = "UPDATE empleados SET nombre = ?, apellido1 = ?, apellido2 = ?, dni = ?, genero = ?, puesto = ?, email = ?, nivel_acceso = ? WHERE id_entidad = ?";
+		
+		try (Connection conexion = conectar()){
+			
+			if(conexion != null) {
+				PreparedStatement sentencia = conexion.prepareStatement(sql);
+				sentencia.setString(1, name);
+				sentencia.setString(2, lastName1);
+				sentencia.setString(3, lastName2);
+				sentencia.setString(4, dni);
+				sentencia.setString(5, genero);
+				sentencia.setString(6, puesto);
+				sentencia.setString(7, email);
+				sentencia.setInt(8, nivelAcceso);
+				sentencia.setInt(9, idEmpleado);
+				
+				sentencia.executeUpdate();
+				System.out.println("Empleado actualizado");
+				JOptionPane.showMessageDialog(null, "Empleado actualizado correctamente", "Info", JOptionPane.INFORMATION_MESSAGE);
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+			System.out.println("No se ha podido actualizar el empleado, error: " + e.getMessage());
+		}
+	}
+	
+	public void actualizarTemporal(int idTemporal,String name,String lastName1,String lastName2,String dni,String motivoVisita) {
+		
+		String sql = "UPDATE usuarios_temporales SET nombre = ?, apellido1 = ?, apellido2 = ?, dni = ?, motivo_visita = ? WHERE id_entidad = ?";
+		
+		try (Connection conexion = conectar()){
+			
+			if(conexion != null) {
+				PreparedStatement sentencia = conexion.prepareStatement(sql);
+				sentencia.setString(1, name);
+				sentencia.setString(2, lastName1);
+				sentencia.setString(3, lastName2);
+				sentencia.setString(4, dni);
+				sentencia.setString(5, motivoVisita);
+				sentencia.setInt(6, idTemporal);
+				
+				sentencia.executeUpdate();
+				System.out.println("Usuario temporal actualizado");
+				JOptionPane.showMessageDialog(null, "Usuario temporal actualizado correctamente", "Info", JOptionPane.INFORMATION_MESSAGE);
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+			System.out.println("No se ha podido actualizar el usuario temporal, error: " + e.getMessage());
+		}
+	}
+	
 	public ArrayList<Empleado> obtenerEmpleados(String sql) {
 		
 		
@@ -486,6 +544,7 @@ public class ConexionDB {
 				
 				while (resultado.next()) {
 					
+					int idEntidad = resultado.getInt("id_entidad");
 					String nombre = resultado.getString("nombre");
 					String apellido1 = resultado.getString("apellido1");
 					String apellido2 = resultado.getString("apellido2");
@@ -495,7 +554,7 @@ public class ConexionDB {
 					String email = resultado.getString("email");
 					int nivelAcceso = resultado.getInt("nivel_acceso");
 					
-					Empleado emp = new Empleado(nombre, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, null, null);
+					Empleado emp = new Empleado(idEntidad, nombre, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, null, null);
 					empList.add(emp);
 				}
 				
@@ -508,5 +567,43 @@ public class ConexionDB {
 				}
 		
 		return empList;
+	}
+	
+	public ArrayList<VisitaTemporal> obtenerTemporal(String sql){
+		
+		ArrayList<VisitaTemporal> tempList = new ArrayList<VisitaTemporal>();
+		
+		try (Connection conexion = conectar()){
+			
+			if(conexion != null) {
+				PreparedStatement sentencia = conexion.prepareStatement(sql);
+				
+				ResultSet resultado = sentencia.executeQuery();
+				
+				while (resultado.next()) {
+					
+					int idEntidad = resultado.getInt("id_entidad");
+					String nombre = resultado.getString("nombre");
+					String apellido1 = resultado.getString("apellido1");
+					String apellido2 = resultado.getString("apellido2");
+					String dni = resultado.getString("dni");
+					String motivo = resultado.getString("motivo_visita");
+					String fecha = resultado.getTimestamp("fecha_expiracion").toString();
+					
+					
+					VisitaTemporal temp = new VisitaTemporal(idEntidad, nombre, apellido1, apellido2, dni, motivo, null, 0, null, fecha);
+					tempList.add(temp);
+				}
+				
+			}
+					
+				} catch(SQLException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+					System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+				}
+		
+		return tempList;
+		
 	}
 }

@@ -205,7 +205,7 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 	private void registerTempUser(String nombre, String apellido1, String apellido2, String dni, String motivo, int horas, File foto, String codigoTag) {
 
 		
-		VisitaTemporal tempUser = new VisitaTemporal(nombre, apellido1, apellido2, dni, motivo, foto, horas, codigoTag);
+		VisitaTemporal tempUser = new VisitaTemporal(0, nombre, apellido1, apellido2, dni, motivo, foto, horas, codigoTag, null);
 				
 		try {
 			
