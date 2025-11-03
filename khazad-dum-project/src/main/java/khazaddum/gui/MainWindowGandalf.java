@@ -181,16 +181,17 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		
 		JLabel lblNewLabel_2 = new JLabel("Fecha Incio");
 		lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel_2.setBounds(94, 434, 89, 12);
+		lblNewLabel_2.setBounds(58, 434, 89, 12);
 		contentPane.add(lblNewLabel_2);
 		
 		JLabel lblNewLabel_2_1 = new JLabel("Fecha Final");
 		lblNewLabel_2_1.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel_2_1.setBounds(94, 477, 89, 12);
+		lblNewLabel_2_1.setBounds(58, 476, 89, 12);
 		contentPane.add(lblNewLabel_2_1);
 		
 		btnBuscar = new JButton("Buscar");
 		btnBuscar.setBounds(16, 527, 168, 20);
+		btnBuscar.addActionListener(this);
 		contentPane.add(btnBuscar);
 		
 		JPanel lineaSeparadoraPanel_1 = new JPanel();
@@ -360,19 +361,104 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		}
 		
 		if(btnBuscar == e.getSource()) {
+			
 			if (checkAll.isSelected()) {
 				if (radioEmp.isSelected()) {
 					cargarTablaEmpleados();
 				} else if (radioTemp.isSelected()) {
 					cargarTablaTemporales();
 				}
+				
 			} else {
-				// Lógica de búsqueda avanzada aquí
-				JOptionPane.showMessageDialog(this, "Funcionalidad de búsqueda avanzada no implementada aún.");
+				if (radioEmp.isSelected()) {
+					
+					if (comboBusquedaTipo.getSelectedItem() != "Seleccione" && !(textBusqueda.getText().trim().isEmpty())) {
+						String criterio = (String) comboBusquedaTipo.getSelectedItem();
+						String valorBusqueda = textBusqueda.getText().trim();
+						buscarEmpleado(criterio, valorBusqueda);
+					} else {
+						JOptionPane.showMessageDialog(this, "Por favor, selecciona un criterio de búsqueda y proporciona un valor.");
+					}
+					
+				} else if (radioTemp.isSelected()) {
+					
+					if (comboBusquedaTipo.getSelectedItem() != "Seleccione" && !(textBusqueda.getText().trim().isEmpty())) {
+						
+						String criterio = (String) comboBusquedaTipo.getSelectedItem();
+						String valorBusqueda = textBusqueda.getText().trim();
+						buscarTemporal(criterio, valorBusqueda);
+					} else {
+						JOptionPane.showMessageDialog(this, "Por favor, selecciona un criterio de búsqueda y proporciona un valor.");
+						
+					}
+					
+				}
 			}
 		}
 		
 		
+	}
+
+
+
+	private void buscarTemporal(String criterio, String valorBusqueda) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	private void buscarEmpleado(String criterio, String valorBusqueda) {
+		
+		empList = null;
+		if (criterio.equals("Por Nombre")) {
+			
+			empList = new ArrayList<Empleado>();
+			String sql = "SELECT * FROM empleados WHERE nombre LIKE '%" + valorBusqueda + "%'";
+			
+			try {
+				ConexionDB conexion = new ConexionDB();
+				empList = conexion.obtenerEmpleados(sql);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				
+			}
+			
+		} else if (criterio.equals("Por DNI")) {
+			
+			empList = new ArrayList<Empleado>();
+			String sql = "SELECT * FROM empleados WHERE dni LIKE '%" + valorBusqueda + "%'";
+			
+			try {
+				ConexionDB conexion = new ConexionDB();
+				empList = conexion.obtenerEmpleados(sql);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				
+			}
+		}
+
+		modeloP = new DefaultTableModel();
+		modeloP.addColumn("ID");
+		modeloP.addColumn("Nombre");
+		modeloP.addColumn("Apellido");
+		modeloP.addColumn("Apellido 2");
+		modeloP.addColumn("DNI");
+		modeloP.addColumn("Género");
+		modeloP.addColumn("Puesto");
+		modeloP.addColumn("Email");
+		modeloP.addColumn("Nivel de Acceso");
+		
+		for (Empleado emp : empList) {
+			modeloP.addRow(emp.crear());
+		}
+		
+		tablaPrincipal.setModel(modeloP);
+		tablaPrincipal.getColumnModel().getColumn(0).setMaxWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(0).setMinWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(0).setPreferredWidth(0);
 	}
 
 
