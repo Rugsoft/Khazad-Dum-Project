@@ -9,11 +9,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import khazaddum.modelo.Empleado;
 import khazaddum.modelo.RegistroUsuarios;
 import khazaddum.modelo.VisitaTemporal;
 import khazaddum.operaciones.ConexionDB;
+import khazaddum.operaciones.ExportarExcel;
+import khazaddum.operaciones.ExportarPDF;
 
 import java.awt.Color;
 import javax.swing.JLabel;
@@ -44,6 +47,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTable tablaPrincipal;
+	private JTable tablaEnUso;
 	private JLabel lblSaludoGandalf;
 	private JButton btnAñadirEmp;
 	private DefaultTableModel modeloP;
@@ -219,10 +223,12 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		contentPane.add(btnEliminar);
 		
 		btnExportPDF = new JButton("Exportar PDF");
+		btnExportPDF.addActionListener(this);
 		btnExportPDF.setBounds(10, 676, 117, 20);
 		contentPane.add(btnExportPDF);
 		
 		btnExportExcel = new JButton("Exportar Excel");
+		btnExportExcel.addActionListener(this);
 		btnExportExcel.setBounds(150, 676, 117, 20);
 		contentPane.add(btnExportExcel);
 		
@@ -370,6 +376,24 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 			eliminarUsuario();
 		}
 		
+		if (btnExportExcel == e.getSource()) {
+			JTable tablaActiva = getTablaActiva();
+			if (tablaActiva == null) {
+				JOptionPane.showMessageDialog(this, "No hay una tabla activa para exportar.");
+				return;
+			}
+			exportarAExcel(tablaActiva);
+		}
+		
+		if (btnExportPDF == e.getSource()) {
+			JTable tablaActiva = getTablaActiva();
+			if (tablaActiva == null) {
+				JOptionPane.showMessageDialog(this, "No hay una tabla activa para exportar.");
+				return;
+			}
+			exportarAPDF(tablaActiva);
+		}
+		
 		if(btnBuscar == e.getSource()) {
 			
 			if (checkAll.isSelected()) {
@@ -409,6 +433,26 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 			}
 		}
 		
+		
+	}
+
+
+
+	private void exportarAPDF(JTable tablaActiva) {
+		
+		TableModel modelo = tablaActiva.getModel();
+		ExportarPDF exportar = new ExportarPDF(modelo);
+		exportar.exportar();
+		
+	}
+
+
+
+	private void exportarAExcel(JTable tablaActiva) {
+		
+		TableModel modelo = tablaActiva.getModel();
+		ExportarExcel exportar = new ExportarExcel(modelo);
+		exportar.exportar();
 		
 	}
 
@@ -702,5 +746,19 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 	        e.printStackTrace();
 	    }
 		
+	}
+	
+	private JTable getTablaActiva() {
+	    // Obtiene el índice de la pestaña seleccionada (0, 1, 2...)
+	    int index = tabbedPane.getSelectedIndex();
+	    
+	    switch (index) {
+	        case 0:
+	            return tablaPrincipal; // La tabla en la primera pestaña
+	        case 1:
+	            return tablaRegistros; // La tabla en la segunda pestaña
+	        default:
+	            return null;
+	    }
 	}
 }
