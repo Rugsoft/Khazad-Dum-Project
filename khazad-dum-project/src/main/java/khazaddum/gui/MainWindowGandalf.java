@@ -2,6 +2,7 @@ package khazaddum.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -10,6 +11,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import khazaddum.modelo.Empleado;
+import khazaddum.modelo.RegistroUsuarios;
 import khazaddum.modelo.VisitaTemporal;
 import khazaddum.operaciones.ConexionDB;
 
@@ -48,6 +50,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 	private DefaultTableModel modeloR;
 	private ArrayList<Empleado> empList;
 	private ArrayList<VisitaTemporal> tempList;
+	private ArrayList<RegistroUsuarios> registros;
 	private JTabbedPane tabbedPane;
 	private JTable tablaRegistros;
 	private JTextField textBusqueda;
@@ -264,6 +267,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 
 	private void cargarTablaEmpleados() {
 		
+		tipoEntidad = "empleado";
 		empList = null;
 
 		modeloP = new DefaultTableModel();
@@ -302,6 +306,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 	
 	private void cargarTablaTemporales() {
 		
+		tipoEntidad = "temporal";
 		tempList = null;
 		
 		modeloP = new DefaultTableModel();
@@ -373,6 +378,8 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 				if (radioEmp.isSelected()) {
 					
 					if (comboBusquedaTipo.getSelectedItem() != "Seleccione" && !(textBusqueda.getText().trim().isEmpty())) {
+						
+						tipoEntidad = "empleado";
 						String criterio = (String) comboBusquedaTipo.getSelectedItem();
 						String valorBusqueda = textBusqueda.getText().trim();
 						buscarEmpleado(criterio, valorBusqueda);
@@ -384,6 +391,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 					
 					if (comboBusquedaTipo.getSelectedItem() != "Seleccione" && !(textBusqueda.getText().trim().isEmpty())) {
 						
+						tipoEntidad = "temporal";
 						String criterio = (String) comboBusquedaTipo.getSelectedItem();
 						String valorBusqueda = textBusqueda.getText().trim();
 						buscarTemporal(criterio, valorBusqueda);
@@ -402,7 +410,81 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 
 
 	private void buscarTemporal(String criterio, String valorBusqueda) {
-		// TODO Auto-generated method stub
+
+		tempList = null;
+		if (criterio.equals("Por Nombre")) {
+			
+			tempList = new ArrayList<VisitaTemporal>();
+			String sql = "SELECT * FROM usuarios_temporales WHERE nombre LIKE '%" + valorBusqueda + "%'";
+			
+			try {
+				ConexionDB conexion = new ConexionDB();
+				tempList = conexion.obtenerTemporal(sql);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				
+			}
+			
+		} else if (criterio.equals("Por DNI")) {
+			
+			tempList = new ArrayList<VisitaTemporal>();
+			String sql = "SELECT * FROM usuarios_temporales WHERE dni LIKE '%" + valorBusqueda + "%'";
+			
+			try {
+				ConexionDB conexion = new ConexionDB();
+				tempList = conexion.obtenerTemporal(sql);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				
+			}
+		}
+
+		modeloP = new DefaultTableModel();
+		modeloP.addColumn("ID");
+		modeloP.addColumn("Nombre");
+		modeloP.addColumn("Apellido");
+		modeloP.addColumn("Apellido 2");
+		modeloP.addColumn("DNI");
+		modeloP.addColumn("Motivo");
+		modeloP.addColumn("Foto");
+		modeloP.addColumn("Foto");
+		modeloP.addColumn("Foto");
+		modeloP.addColumn("Fecha Expiración");
+		
+		for (VisitaTemporal temp : tempList) {
+			modeloP.addRow(temp.crear());
+		}
+		
+		tablaPrincipal.setModel(modeloP);
+		tablaPrincipal.getColumnModel().getColumn(0).setMaxWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(0).setMinWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(0).setPreferredWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(6).setMaxWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(6).setMinWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(6).setPreferredWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(7).setMaxWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(7).setMinWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(7).setPreferredWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(8).setMaxWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(8).setMinWidth(0);
+		tablaPrincipal.getColumnModel().getColumn(8).setPreferredWidth(0);
+		
+		if (tempList != null && tempList.size() == 1) {
+			
+			java.time.LocalDate fechaInicio = datePickerInicio.getDate();
+			java.time.LocalDate fechaFinal = datePickerFinal.getDate();
+			
+			if (fechaInicio == null) {
+				fechaInicio = java.time.LocalDate.of(2000, 1, 1);
+			}
+			if (fechaFinal == null) {
+				fechaFinal = java.time.LocalDate.now();
+			}
+			int idTemporal = tempList.get(0).getIdVisita();
+			cargarTablaRegistro(idTemporal, fechaInicio, fechaFinal);
+		}
 		
 	}
 
@@ -459,8 +541,62 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		tablaPrincipal.getColumnModel().getColumn(0).setMaxWidth(0);
 		tablaPrincipal.getColumnModel().getColumn(0).setMinWidth(0);
 		tablaPrincipal.getColumnModel().getColumn(0).setPreferredWidth(0);
+		
+		limpiarTablaRegistro();
+		
+		if (empList != null && empList.size() == 1) {
+			
+			java.time.LocalDate fechaInicio = datePickerInicio.getDate();
+			java.time.LocalDate fechaFinal = datePickerFinal.getDate();
+			
+			if (fechaInicio == null) {
+				fechaInicio = java.time.LocalDate.of(2000, 1, 1);
+			}
+			if (fechaFinal == null) {
+				fechaFinal = java.time.LocalDate.now();
+			}
+			
+			int idEmpleado = empList.get(0).getIdEmpleado();
+			cargarTablaRegistro(idEmpleado, fechaInicio, fechaFinal);
+				
+			
+		}
+		
 	}
 
+
+
+	private void cargarTablaRegistro(int idEmpleado, LocalDate fechaInicio, LocalDate fechaFinal) {
+		
+		registros = new ArrayList<RegistroUsuarios>();
+		modeloR = new DefaultTableModel();
+		modeloR.addColumn("Fecha/Hora");
+		modeloR.addColumn("Tipo de Registro");
+		modeloR.addColumn("Nombre Usuario");
+		
+		ConexionDB conexion = new ConexionDB();
+		registros = conexion.obtenerRegistrosNombre(idEmpleado, fechaInicio, fechaFinal);
+		
+		if (registros.isEmpty()) {
+		    JOptionPane.showMessageDialog(this, "Esta entidad no tiene registros.");
+		    
+		} else {
+			
+			for (RegistroUsuarios reg : registros) {
+				modeloR.addRow(new Object[] {
+						reg.fechaHora(), 
+						reg.tipoRegistro(), 
+						reg.nombreCompleto()});
+			}
+			
+			tablaRegistros.setModel(modeloR);
+		}
+	}
+	
+	private void limpiarTablaRegistro() {
+		// TODO Auto-generated method stub
+		
+	}
 
 
 	private void modificarEmpleado(String tipo) {

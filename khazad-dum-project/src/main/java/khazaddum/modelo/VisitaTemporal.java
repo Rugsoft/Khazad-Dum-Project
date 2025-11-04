@@ -33,6 +33,14 @@ public class VisitaTemporal {
 	public Object[] crear() {
 		return new Object[] {idVisita, name, lastName1, lastName2, dni, motivo, foto, horas, codigoTag, fechaString};
 	}
+
+	public int getIdVisita() {
+		return idVisita;
+	}
+
+	public void setIdVisita(int idVisita) {
+		this.idVisita = idVisita;
+	}
 	
 	
 }

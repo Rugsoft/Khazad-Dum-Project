@@ -1,5 +1,6 @@
 package khazaddum.operaciones;
 
+import java.awt.List;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,12 +8,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -21,6 +24,7 @@ import javax.swing.JOptionPane;
 import khazaddum.modelo.Empleado;
 import khazaddum.modelo.ResultadoIdentificacion;
 import khazaddum.modelo.VisitaTemporal;
+import khazaddum.modelo.RegistroUsuarios;
 
 public class ConexionDB {
 
@@ -604,6 +608,53 @@ public class ConexionDB {
 				}
 		
 		return tempList;
+		
+	}
+	
+	public ArrayList<RegistroUsuarios> obtenerRegistrosNombre(int idEntidad, LocalDate fechaInicio, LocalDate fechaFin){
+		
+		ArrayList<RegistroUsuarios> registros = new ArrayList<>();
+		
+		String sql = "SELECT R.fecha_hora, R.tipo_registro, " +
+                "COALESCE(CONCAT(EM.nombre, ' ', EM.apellido1), CONCAT(UT.nombre, ' ', UT.apellido1)) AS nombre_completo " +
+                "FROM registros AS R " +
+                "JOIN entidades AS E ON R.id_entidad = E.id_entidad " +
+                "LEFT JOIN empleados AS EM ON E.id_entidad = EM.id_entidad AND E.tipo_entidad = 'empleado' " +
+                "LEFT JOIN usuarios_temporales AS UT ON E.id_entidad = UT.id_entidad AND E.tipo_entidad = 'temporal' " +
+                "WHERE R.id_entidad = ? " +
+                "  AND DATE(R.fecha_hora) >= ? " + 
+                "  AND DATE(R.fecha_hora) <= ? " +
+                "ORDER BY R.fecha_hora ASC";
+		
+		try (Connection conexion = conectar()){
+			
+			if(conexion != null) {
+				PreparedStatement sentencia = conexion.prepareStatement(sql);
+				sentencia.setInt(1, idEntidad);
+				sentencia.setDate(2, java.sql.Date.valueOf(fechaInicio));
+	            sentencia.setDate(3, java.sql.Date.valueOf(fechaFin));
+				
+				ResultSet resultado = sentencia.executeQuery();
+				
+				while (resultado.next()) {
+					
+					Timestamp fechaHora = resultado.getTimestamp("fecha_hora");
+					String tipoRegistro = resultado.getString("tipo_registro");
+					String nombreCompleto = resultado.getString("nombre_completo");
+					
+					RegistroUsuarios registro = new RegistroUsuarios(fechaHora, tipoRegistro, nombreCompleto);
+					registros.add(registro);
+				}
+				
+			}
+					
+				} catch(SQLException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+					System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+				}
+		
+				return registros;
 		
 	}
 }
