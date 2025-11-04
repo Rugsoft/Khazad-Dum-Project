@@ -657,4 +657,65 @@ public class ConexionDB {
 				return registros;
 		
 	}
+	
+	public boolean eliminarUsuario(int id) {
+		
+		String sqlEntidad = "DELETE FROM entidades WHERE id_entidad = ?";
+		String sqlRegistros = "DELETE FROM registros WHERE id_entidad = ?";
+		
+		Connection conexion = null;
+		
+		try {
+			
+			conexion = conectar();
+			conexion.setAutoCommit(false);
+			
+			try (PreparedStatement psRegistros = conexion.prepareStatement(sqlRegistros)) {
+                psRegistros.setLong(1, id);
+                psRegistros.executeUpdate();
+            }
+
+            // --- Paso 2: Borrar la entidad en 'entidades' (y en Empleados/Temporales) ---
+            try (PreparedStatement psEntidad = conexion.prepareStatement(sqlEntidad)) {
+                psEntidad.setLong(1, id);
+                int filasAfectadas = psEntidad.executeUpdate();
+                
+                // Si filasAfectadas es 0, el ID no existía.
+                // Hacemos rollback por precaución, aunque el borrado
+                // de registros no haya hecho nada.
+                if (filasAfectadas == 0) {
+                    throw new SQLException("El idEntidad " + id + " no existe.");
+                }
+            }
+
+            // --- FIN DE LA TRANSACCIÓN: Confirmar ---
+            conexion.commit();
+            return true; // ¡Todo salió bien!
+
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar la entidad y su historial: " + e.getMessage());
+            
+            // --- ERROR: Revertir ---
+            try {
+                if (conexion != null) {
+                    System.err.println("Haciendo rollback de la transacción...");
+                    conexion.rollback(); // Deshacemos cualquier cambio
+                }
+            } catch (SQLException ex) {
+                System.err.println("Error crítico al hacer rollback: " + ex.getMessage());
+            }
+            return false; // Indica que la eliminación falló
+            
+        } finally {
+            // Cerramos la conexión (esto también la pone en auto-commit de nuevo)
+            try {
+                if (conexion != null) {
+                    conexion.setAutoCommit(true); // Devolvemos al estado normal
+                    conexion.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+	}
 }

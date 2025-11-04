@@ -214,6 +214,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		contentPane.add(btnGuardar);
 		
 		btnEliminar = new JButton("Eliminar Empleado");
+		btnEliminar.addActionListener(this);
 		btnEliminar.setBounds(58, 633, 179, 20);
 		contentPane.add(btnEliminar);
 		
@@ -365,6 +366,10 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 			modificarEmpleado(tipoEntidad);
 		}
 		
+		if (btnEliminar == e.getSource()) {
+			eliminarUsuario();
+		}
+		
 		if(btnBuscar == e.getSource()) {
 			
 			if (checkAll.isSelected()) {
@@ -405,6 +410,55 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		}
 		
 		
+	}
+
+
+
+	private void eliminarUsuario() {
+
+		int filaSeleccionada = tablaPrincipal.getSelectedRow();
+		if (filaSeleccionada == -1) {
+	        JOptionPane.showMessageDialog(this, "Por favor, selecciona una fila para eliminar.");
+	        return;
+	    }
+		
+		try {
+			
+			int idEntidad = (int) tablaPrincipal.getValueAt(filaSeleccionada, 0);
+			String nombre = (String) tablaPrincipal.getValueAt(filaSeleccionada, 1);
+			
+			int respuesta = JOptionPane.showConfirmDialog(
+				this,
+				"Estas seguro de eliminar a " + nombre +"?\n(ID: " + idEntidad + ")",
+				"Confirmar Eliminación",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE);
+			
+			if (respuesta == JOptionPane.YES_NO_OPTION) {
+				
+				ConexionDB conexion = new ConexionDB();
+				boolean exito = conexion.eliminarUsuario(idEntidad);
+				
+				if (exito) {
+					
+					modeloP.removeRow(filaSeleccionada);
+					tablaPrincipal.setModel(modeloP);
+					JOptionPane.showMessageDialog(this, "Usuario eliminado correctamente.");
+				} else {
+					
+					JOptionPane.showMessageDialog(this, 
+			                   "No se pudo eliminar al usuario.\nRevise la consola).", 
+			                   "Error de eliminación", 
+			                   JOptionPane.ERROR_MESSAGE);
+				}
+				
+			}
+			
+			
+		} catch (Exception e) {
+	        JOptionPane.showMessageDialog(this, "Error al obtener datos de la tabla: " + e.getMessage());
+	        e.printStackTrace();
+	    }
 	}
 
 
