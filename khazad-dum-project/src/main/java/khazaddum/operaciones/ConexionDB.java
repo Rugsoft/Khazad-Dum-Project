@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -642,7 +643,11 @@ public class ConexionDB {
 					String tipoRegistro = resultado.getString("tipo_registro");
 					String nombreCompleto = resultado.getString("nombre_completo");
 					
-					RegistroUsuarios registro = new RegistroUsuarios(fechaHora, tipoRegistro, nombreCompleto);
+					LocalDateTime fecha = fechaHora.toLocalDateTime();
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
+					String fechaFormateada = fecha.format(formatter);
+					
+					RegistroUsuarios registro = new RegistroUsuarios(fechaFormateada, tipoRegistro, nombreCompleto);
 					registros.add(registro);
 				}
 				
