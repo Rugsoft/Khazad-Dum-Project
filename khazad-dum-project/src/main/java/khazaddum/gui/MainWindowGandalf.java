@@ -41,6 +41,8 @@ import javax.swing.JTextField;
 import com.github.lgooddatepicker.components.DatePicker;
 import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MainWindowGandalf extends JFrame implements ActionListener{
 
@@ -71,6 +73,8 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 	private JRadioButton radioTemp;
 	private JCheckBox checkAll;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
+	private JButton btnBalrog;
+	private MainWindowBalrog balrog;
 
 	
 	public MainWindowGandalf(String user, String nivel) {
@@ -88,6 +92,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		saludo(user, nivel);
 		//cargarTablaTemporales();
 		cargarTablaEmpleados();
+		balrog = new MainWindowBalrog(user, nivel);
 		
 	}
 	
@@ -117,8 +122,13 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		lblSaludoGandalf = new JLabel("");
 		lblSaludoGandalf.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		lblSaludoGandalf.setHorizontalAlignment(SwingConstants.CENTER);
-		lblSaludoGandalf.setBounds(27, 173, 254, 38);
+		lblSaludoGandalf.setBounds(27, 142, 254, 38);
 		panel.add(lblSaludoGandalf);
+		
+		btnBalrog = new JButton("Ir a Balrog");
+		btnBalrog.addActionListener(this);
+		btnBalrog.setBounds(98, 191, 100, 23);
+		panel.add(btnBalrog);
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBounds(308, 0, 1080, 723);
@@ -134,6 +144,19 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		tabbedPane.addTab("Gestión de Empleados", null, scrollPane, null);
 		
 		tablaPrincipal = new JTable(modeloP);
+		tablaPrincipal.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				limpiarTablaRegistro();
+				int fila = tablaPrincipal.getSelectedRow();
+		        
+		        if (fila >= 0) {
+		        	int idEntidad = (int) tablaPrincipal.getValueAt(fila, 0);
+		        	cargarTablaRegistro(idEntidad);
+		           	
+		        }
+			}
+			});
 		scrollPane.setViewportView(tablaPrincipal);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
@@ -197,7 +220,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		contentPane.add(lblNewLabel_2_1);
 		
 		btnBuscar = new JButton("Buscar");
-		btnBuscar.setBounds(16, 527, 168, 20);
+		btnBuscar.setBounds(16, 527, 139, 20);
 		btnBuscar.addActionListener(this);
 		contentPane.add(btnBuscar);
 		
@@ -229,24 +252,24 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		
 		btnExportExcel = new JButton("Exportar Excel");
 		btnExportExcel.addActionListener(this);
-		btnExportExcel.setBounds(150, 676, 117, 20);
+		btnExportExcel.setBounds(179, 676, 117, 20);
 		contentPane.add(btnExportExcel);
 		
 		checkAll = new JCheckBox("Todo");
 		checkAll.setBackground(new Color(0, 128, 128));
-		checkAll.setBounds(228, 430, 62, 20);
+		checkAll.setBounds(240, 527, 56, 20);
 		contentPane.add(checkAll);
 		
 		radioEmp = new JRadioButton("Empleado");
 		radioEmp.setSelected(true);
 		radioEmp.setBackground(new Color(0, 128, 128));
-		radioEmp.setBounds(190, 516, 102, 20);
+		radioEmp.setBounds(161, 514, 71, 20);
 		buttonGroup.add(radioEmp);
 		contentPane.add(radioEmp);
 		
 		radioTemp = new JRadioButton("Temporal");
 		radioTemp.setBackground(new Color(0, 128, 128));
-		radioTemp.setBounds(190, 538, 102, 20);
+		radioTemp.setBounds(161, 537, 71, 20);
 		buttonGroup.add(radioTemp);
 		contentPane.add(radioTemp);
 		
@@ -377,21 +400,28 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		}
 		
 		if (btnExportExcel == e.getSource()) {
-			JTable tablaActiva = getTablaActiva();
-			if (tablaActiva == null) {
+			tablaEnUso = getTablaActiva();
+			if (tablaEnUso == null) {
 				JOptionPane.showMessageDialog(this, "No hay una tabla activa para exportar.");
 				return;
 			}
-			exportarAExcel(tablaActiva);
+			exportarAExcel(tablaEnUso);
 		}
 		
 		if (btnExportPDF == e.getSource()) {
-			JTable tablaActiva = getTablaActiva();
-			if (tablaActiva == null) {
+			tablaEnUso = getTablaActiva();
+			if (tablaEnUso == null) {
 				JOptionPane.showMessageDialog(this, "No hay una tabla activa para exportar.");
 				return;
 			}
-			exportarAPDF(tablaActiva);
+			exportarAPDF(tablaEnUso);
+		}
+		
+		if (btnBalrog == e.getSource()) {
+			balrog.setVisible(true);
+			balrog.setLocationRelativeTo(null);
+			//this.dispose();
+			
 		}
 		
 		if(btnBuscar == e.getSource()) {
@@ -571,17 +601,8 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		
 		if (tempList != null && tempList.size() == 1) {
 			
-			java.time.LocalDate fechaInicio = datePickerInicio.getDate();
-			java.time.LocalDate fechaFinal = datePickerFinal.getDate();
-			
-			if (fechaInicio == null) {
-				fechaInicio = java.time.LocalDate.of(2000, 1, 1);
-			}
-			if (fechaFinal == null) {
-				fechaFinal = java.time.LocalDate.now();
-			}
 			int idTemporal = tempList.get(0).getIdVisita();
-			cargarTablaRegistro(idTemporal, fechaInicio, fechaFinal);
+			cargarTablaRegistro(idTemporal);
 		}
 		
 	}
@@ -640,22 +661,11 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		tablaPrincipal.getColumnModel().getColumn(0).setMinWidth(0);
 		tablaPrincipal.getColumnModel().getColumn(0).setPreferredWidth(0);
 		
-		limpiarTablaRegistro();
 		
 		if (empList != null && empList.size() == 1) {
 			
-			java.time.LocalDate fechaInicio = datePickerInicio.getDate();
-			java.time.LocalDate fechaFinal = datePickerFinal.getDate();
-			
-			if (fechaInicio == null) {
-				fechaInicio = java.time.LocalDate.of(2000, 1, 1);
-			}
-			if (fechaFinal == null) {
-				fechaFinal = java.time.LocalDate.now();
-			}
-			
 			int idEmpleado = empList.get(0).getIdEmpleado();
-			cargarTablaRegistro(idEmpleado, fechaInicio, fechaFinal);
+			cargarTablaRegistro(idEmpleado);
 				
 			
 		}
@@ -664,7 +674,17 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 
 
 
-	private void cargarTablaRegistro(int idEmpleado, LocalDate fechaInicio, LocalDate fechaFinal) {
+	private void cargarTablaRegistro(int idEmpleado) {
+		
+		java.time.LocalDate fechaInicio = datePickerInicio.getDate();
+		java.time.LocalDate fechaFinal = datePickerFinal.getDate();
+		
+		if (fechaInicio == null) {
+			fechaInicio = java.time.LocalDate.of(2000, 1, 1);
+		}
+		if (fechaFinal == null) {
+			fechaFinal = java.time.LocalDate.now();
+		}
 		
 		registros = new ArrayList<RegistroUsuarios>();
 		modeloR = new DefaultTableModel();
@@ -692,7 +712,14 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 	}
 	
 	private void limpiarTablaRegistro() {
-		// TODO Auto-generated method stub
+		modeloR = new DefaultTableModel();
+	    modeloR.addColumn("Fecha/Hora");
+	    modeloR.addColumn("Tipo de Registro");
+	    modeloR.addColumn("Nombre Usuario");
+	    
+	    if (tablaRegistros != null) {
+	        tablaRegistros.setModel(modeloR);
+	    }
 		
 	}
 
@@ -724,7 +751,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 				String genero = (String) tablaPrincipal.getValueAt(filaSeleccionada, 5);
 				String puesto = (String) tablaPrincipal.getValueAt(filaSeleccionada, 6);
 				String email = (String) tablaPrincipal.getValueAt(filaSeleccionada, 7);
-				int nivelAcceso = (int) tablaPrincipal.getValueAt(filaSeleccionada, 8);
+				int nivelAcceso = Integer.parseInt(tablaPrincipal.getValueAt(filaSeleccionada, 8).toString()); ;
 					
 				conexion.actualizarEmpleado(idEmpleado, name, lastName1, lastName2, dni, genero, puesto, email, nivelAcceso);
 				
