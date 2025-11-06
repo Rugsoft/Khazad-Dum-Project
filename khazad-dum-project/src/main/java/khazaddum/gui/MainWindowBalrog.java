@@ -54,9 +54,10 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 	private ComunicacionSerie miConexion;
     private String mensajeDeArduino = "";
     private javax.swing.Timer clearDataTimer;
+    private JButton btnBackLogin;
 
 	public MainWindowBalrog(String user, String nivel) {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setUndecorated(true);
 		setResizable(false);
 		setTitle("Khazzad-Dûm Pro");
@@ -68,7 +69,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		visualElements();
+		visualElements(nivel);
 		saludo(user, nivel);
 		miConexion = new ComunicacionSerie();
 		miConexion.setSerialDataCallback(this);
@@ -82,7 +83,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		
 	}
 
-	private void visualElements() {
+	private void visualElements(String nivel) {
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(158, 182, 226));
 		panel.setBounds(0, 0, 287, 588);
@@ -123,7 +124,11 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		lblNewLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.exit(getDefaultCloseOperation());
+				if (nivel.equals("Gandalf")) {
+					dispose();
+				} else {
+					System.exit(0);
+				}
 			}
 		});
 		lblNewLabel.setFont(new Font("Verdana", Font.BOLD, 30));
@@ -232,6 +237,16 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		lblSaludo.setBounds(55, 37, 619, 63);
 		panel_2.add(lblSaludo);
 		
+		btnBackLogin = new JButton("Relogear");
+		if (nivel.equals("Gandalf")) {
+			btnBackLogin.setVisible(false);
+		} else {
+			btnBackLogin.setVisible(true);
+		}
+		btnBackLogin.addActionListener(this);
+		btnBackLogin.setBounds(296, 126, 134, 23);
+		panel_2.add(btnBackLogin);
+		
 	}
 
 	@Override
@@ -239,6 +254,12 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		if(btnTempUser == e.getSource()) {
 			
 			usuarioTemporal();
+		}
+		if (btnBackLogin == e.getSource()) {
+			miConexion.desconectar();
+			this.dispose();
+			LoginForm login = new LoginForm();
+			login.setVisible(true);
 		}
 		
 	}
@@ -260,7 +281,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 	            miConexion.setSerialDataCallback(mainCallback);
 	        }
 	    });
-		
+		dialog.setLocationRelativeTo(null);
 		dialog.setVisible(true);
 	}
 
