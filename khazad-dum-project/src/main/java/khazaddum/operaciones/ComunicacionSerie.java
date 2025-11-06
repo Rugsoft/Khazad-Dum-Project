@@ -8,8 +8,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * Maneja la comunicación serie con un dispositivo (como Arduino)
- * usando jSerialComm y un listener para recibir datos asíncronamente.
+ * Maneja la comunicación serie con un dispositivo (por ejemplo un Arduino).
+ * <p>
+ * Esta clase implementa {@code SerialPortDataListener} y expone métodos para
+ * conectar/desconectar, enviar datos y recibir notificaciones asíncronas cuando
+ * llegan datos por el puerto serie. Además permite registrar un callback
+ * {@link SerialDataCallback} para recibir las líneas completas leídas.
+ * </p>
  */
 public class ComunicacionSerie implements SerialPortDataListener {
 
@@ -19,10 +24,13 @@ public class ComunicacionSerie implements SerialPortDataListener {
 
     /**
      * Conecta al puerto serie e inicializa el listener.
+     *
+     * @return {@code true} si la conexión se abrió correctamente, {@code false}
+     *         en caso contrario.
      */
     public boolean conectar() {
-        puertoSerie = SerialPort.getCommPort("COM4"); // Cambia esto por tu puerto
-        puertoSerie.setBaudRate(9600); // O la velocidad que uses
+        puertoSerie = SerialPort.getCommPort("COM4"); // Puerto serie a usar
+        puertoSerie.setBaudRate(9600); // Velocidad en baudios
 
         if (!puertoSerie.openPort()) {
             System.err.println("Error: No se pudo abrir el puerto.");
@@ -39,7 +47,11 @@ public class ComunicacionSerie implements SerialPortDataListener {
     }
 
     /**
-     * Método de envío de un carácter al dispositivo serie.
+     * Envía un único carácter por el puerto serie.
+     *
+     * @param valor carácter a enviar.
+     * @return {@code true} si el envío tuvo éxito, {@code false} si ocurrió un
+     *         error de E/S.
      */
     public boolean enviarLetra(char valor) {
         try {
@@ -53,7 +65,7 @@ public class ComunicacionSerie implements SerialPortDataListener {
     }
 
     /**
-     * Cierra el puerto y libera recursos.
+     * Cierra el puerto serie y libera recursos asociados.
      */
     public void desconectar() {
         if (puertoSerie != null && puertoSerie.isOpen()) {
@@ -66,9 +78,10 @@ public class ComunicacionSerie implements SerialPortDataListener {
     // --- MÉTODOS REQUERIDOS POR SerialPortDataListener ---
 
     /**
-     * (Método 1 de 2)
-     * Le dice a la librería qué eventos nos interesan.
-     * Solo queremos que nos avise cuando haya datos para leer.
+     * Indica a la librería qué eventos nos interesa escuchar (datos disponibles).
+     *
+     * @return uno o más flags de escucha (por ejemplo
+     *         {@link SerialPort#LISTENING_EVENT_DATA_AVAILABLE}).
      */
     @Override
     public int getListeningEvents() {
@@ -76,9 +89,11 @@ public class ComunicacionSerie implements SerialPortDataListener {
     }
 
     /**
-     * (Método 2 de 2)
-     * Este método es llamado AUTOMÁTICAMENTE por jSerialComm
-     * en un hilo separado cuando llegan datos.
+     * Método llamado por jSerialComm en un hilo de trabajo cuando llegan datos.
+     * Este método lee líneas completas del stream y notifica al callback
+     * registrado mediante {@link #setSerialDataCallback(SerialDataCallback)}.
+     *
+     * @param event evento recibido de jSerialComm.
      */
     @Override
     public void serialEvent(SerialPortEvent event) {
@@ -88,18 +103,18 @@ public class ComunicacionSerie implements SerialPortDataListener {
         }
 
         try {
-            // Usamos serialReader.ready() para asegurarnos de que hay
+            // Uso serialReader.ready() para asegurarme de que hay
             // una línea completa lista para ser leída.
-            // Leemos todas las líneas que hayan llegado.
+            // Leo todas las líneas que hayan llegado.
             while (serialReader.ready()) {
                 String lineaRecibida = serialReader.readLine();
                 
              // Si alguien se registró (miCallback no es null),
-                // llámalo y entrégale los datos.
+                // lo llamo y le entrego los datos.
                 if (this.miCallback != null) {
                     this.miCallback.onDatoRecibido(lineaRecibida);
                 }
-                // ¡Aquí procesas la línea recibida!
+                // ¡Aquí proceso la línea recibida!
                 System.out.println("Arduino dice: " + lineaRecibida);
 
 
@@ -109,17 +124,23 @@ public class ComunicacionSerie implements SerialPortDataListener {
         }
     }
     
+    /**
+     * Interfaz de callback que debe implementar el consumidor para recibir
+     * líneas completas leídas desde el puerto serie.
+     */
     public interface SerialDataCallback {
         /**
-         * @param dato El String de datos recibido desde el puerto serie.
+         * Invocado cuando llega una línea completa desde el puerto serie.
+         *
+         * @param dato String con la línea recibida (sin el separador de línea).
          */
         void onDatoRecibido(String dato);
     }
     
     /**
-     * Tu programa principal llamará a esto para "registrar"
-     * su método de callback.
-     * @param callback La instancia que implementa SerialDataCallback
+     * Registra el callback que recibirá las líneas leídas por el puerto serie.
+     *
+     * @param callback instancia que implementa {@link SerialDataCallback}.
      */
     public void setSerialDataCallback(SerialDataCallback callback) {
         this.miCallback = callback;

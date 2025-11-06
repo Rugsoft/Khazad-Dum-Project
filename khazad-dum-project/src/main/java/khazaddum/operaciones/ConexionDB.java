@@ -1,6 +1,5 @@
 package khazaddum.operaciones;
 
-import java.awt.List;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,6 +25,14 @@ import khazaddum.modelo.ResultadoIdentificacion;
 import khazaddum.modelo.VisitaTemporal;
 import khazaddum.modelo.RegistroUsuarios;
 
+/**
+ * Utilidad para la conexión y operaciones con la base de datos MySQL.
+ * <p>
+ * Proporciona métodos estáticos y de instancia para conectar a la base,
+ * ejecutar inserciones, actualizaciones, búsquedas y operaciones relacionadas
+ * con entidades como empleados y visitantes temporales.
+ * </p>
+ */
 public class ConexionDB {
 
 	private static final String Controlador = "com.mysql.cj.jdbc.Driver";
@@ -49,6 +55,13 @@ public class ConexionDB {
 		}
 	}
 	
+	/**
+	 * Crea y devuelve una conexión a la base de datos usando los parámetros
+	 * configurados en esta clase.
+	 *
+	 * @return una instancia de {@link Connection} o {@code null} si no se
+	 *         pudo establecer la conexión.
+	 */
 	public static Connection conectar() {
 		
 		Connection conexion = null;
@@ -67,6 +80,15 @@ public class ConexionDB {
 		return conexion;
 	}
 	
+	/**
+	 * Añade un usuario/login a la base de datos usando una consulta preparada y
+	 * los datos proporcionados.
+	 *
+	 * @param sql   sentencia SQL INSERT con marcadores de posición
+	 * @param datos valores que se asignarán a la sentencia preparada
+	 * @return {@code true} si la inserción tuvo éxito, {@code false} en caso
+	 *         contrario.
+	 */
 	public static boolean añadirUsuariosLogin(String sql, Object[] datos) {
 		
 		try (Connection conexion = conectar()){
@@ -93,6 +115,16 @@ public class ConexionDB {
 
 	}
 	
+	/**
+	 * Comprueba las credenciales de inicio de sesión contra la tabla
+	 * {@code login_usuarios} y devuelve el nivel si coinciden.
+	 *
+	 * @param sql      sentencia SQL SELECT que devuelve la columna "nivel"
+	 * @param user     nombre de usuario
+	 * @param password contraseña
+	 * @return el nivel del usuario (p. ej. "Gandalf") o {@code null} si no
+	 *         se encuentra o hay un error.
+	 */
 	public static String comprobarLogin(String sql, String user, String password) {
 		
 		try (Connection conexion = conectar()){
@@ -122,6 +154,14 @@ public class ConexionDB {
 		return null;
 	}
 	
+	/**
+	 * Busca un empleado (o usuario temporal) por nombre y primer apellido.
+	 *
+	 * @param nombre   nombre a buscar
+	 * @param apellido primer apellido a buscar
+	 * @return {@link ResultadoIdentificacion} con id y tipo, o {@code null} si
+	 *         no se encuentra.
+	 */
 	public ResultadoIdentificacion buscarEmpleadoPorNombredeTabla(String nombre, String apellido) {
 		
 		String sql = "(SELECT E.id_entidad, E.tipo_entidad, EM.nombre, EM.apellido1, EM.apellido2 " +
@@ -164,6 +204,12 @@ public class ConexionDB {
 		
 	}
 	
+	/**
+	 * Añade un nuevo empleado (inserta en entidades y empleados).
+	 *
+	 * @param datos array con los datos del empleado (incluida la foto como File)
+	 * @throws FileNotFoundException si no se encuentra la foto indicada.
+	 */
 	public static void añadirEmpleado(Object[] datos) throws FileNotFoundException {
 		
 		String sqlEntidad = "INSERT INTO entidades (tipo_entidad) VALUES ('empleado')";
@@ -184,8 +230,8 @@ public class ConexionDB {
 					idEntidad = rsKeys.getInt(1);
 					
 				} else {
-	                throw new SQLException("No se pudo obtener el ID de la entidad.");
-	            }
+		                throw new SQLException("No se pudo obtener el ID de la entidad.");
+		            }
 				
 				PreparedStatement psEmpleado = conexion.prepareStatement(sqlEmpleado);
 				psEmpleado.setInt(1, idEntidad);
@@ -206,18 +252,24 @@ public class ConexionDB {
 			}
 					
 				} catch(SQLException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-					System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
-				}
-				
-		}
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+			}
+			
+	}
 	
+	/**
+	 * Añade un usuario temporal (inserta en entidades y usuarios_temporales).
+	 *
+	 * @param datos array con los datos del usuario temporal (incluida la foto y horas)
+	 * @throws FileNotFoundException si no se encuentra la foto indicada.
+	 */
 	public static void añadirUsuarioTemporal(Object[] datos) throws FileNotFoundException {
 		
 		String sqlEntidad = "INSERT INTO entidades (tipo_entidad) VALUES ('temporal')";
 		String sqlTemporal = "INSERT INTO usuarios_temporales (id_entidad, nombre, apellido1, apellido2, dni, motivo_visita, foto, fecha_expiracion, codigo_tag) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
 		int idEntidad = -1;
 		
@@ -233,8 +285,8 @@ public class ConexionDB {
 					idEntidad = rsKeys.getInt(1);
 					
 				} else {
-	                throw new SQLException("No se pudo obtener el ID de la entidad.");
-	            }
+		                throw new SQLException("No se pudo obtener el ID de la entidad.");
+		            }
 				
 				PreparedStatement psTemporal = conexion.prepareStatement(sqlTemporal);
 				psTemporal.setInt(1, idEntidad);
@@ -247,8 +299,8 @@ public class ConexionDB {
 					} else if (i == 6) {
 						int horas = (int) datos[i];
 						LocalDateTime fechaExpiracion = LocalDateTime.now().plusHours(horas);
-			            Timestamp sqlFechaExpiracion = Timestamp.valueOf(fechaExpiracion);
-			            psTemporal.setTimestamp(8, sqlFechaExpiracion);
+					    Timestamp sqlFechaExpiracion = Timestamp.valueOf(fechaExpiracion);
+					    psTemporal.setTimestamp(8, sqlFechaExpiracion);
 					} else {
 						psTemporal.setObject(i + 2, datos[i]);
 					}
@@ -260,13 +312,21 @@ public class ConexionDB {
 			}
 					
 				} catch(SQLException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-					System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
-				}
-				
-		}
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+			}
+			
+	}
 	
+	/**
+	 * Busca una entidad por su código de tag RFID y comprueba también si la
+	 * visita temporal no ha expirado.
+	 *
+	 * @param tag código RFID a buscar
+	 * @return {@link ResultadoIdentificacion} con id y tipo, o {@code null}
+	 *         si no se encuentra.
+	 */
 	public ResultadoIdentificacion buscarEmpleadoPorTag(String tag) {
 		
 		String sql = "(SELECT E.id_entidad, E.tipo_entidad, EM.nombre, EM.apellido1 " +
@@ -309,6 +369,15 @@ public class ConexionDB {
 		
 	}
 	
+	/**
+	 * Obtiene todos los datos completos de una entidad (empleado o temporal)
+	 * para mostrarlos en la interfaz.
+	 *
+	 * @param idEntidad   identificador de la entidad
+	 * @param tipoEntidad "empleado" o "temporal"
+	 * @return un array de Object con los datos formateados o {@code null} en
+	 *         caso de error.
+	 */
 	public Object[] obtenerDatosCompletos(int idEntidad, String tipoEntidad) {
 	    String sqlEmpleado = "SELECT * FROM empleados WHERE id_entidad = ?";
 	    String sqlTemporal = "SELECT * FROM usuarios_temporales WHERE id_entidad = ?";
@@ -343,27 +412,27 @@ public class ConexionDB {
 						int nivelAcceso = Integer.parseInt(resultado.getString("nivel_acceso"));
 						byte[] foto = resultado.getBytes("foto");
 						File fotoTemporal = null; // Inicializa como null
-	                    
-	                    if (foto != null && foto.length > 0) {
-	                        try {
-	                            // Creo un archivo temporal para la foto
-	                            fotoTemporal = File.createTempFile("user_" + dni + "_", ".jpg");
-	                            
-	                            // Escribo los bytes de la foto en el archivo temporal
-	                            Files.write(fotoTemporal.toPath(), foto);
-	                            
-	                            // Borro el archivo cuando la app se cierre
-	                            fotoTemporal.deleteOnExit(); 
-	                            
-	                        } catch (IOException e) {
-	                            System.err.println("Error al crear el archivo temporal de la foto: " + e.getMessage());
-	                        }
-	                    }
+					    
+					    if (foto != null && foto.length > 0) {
+					        try {
+					            // Creo un archivo temporal para la foto
+					            fotoTemporal = File.createTempFile("user_" + dni + "_", ".jpg");
+					            
+					            // Escribo los bytes de la foto en el archivo temporal
+					            Files.write(fotoTemporal.toPath(), foto);
+					            
+					            // Borro el archivo cuando la app se cierre
+					            fotoTemporal.deleteOnExit(); 
+					            
+					        } catch (IOException e) {
+					            System.err.println("Error al crear el archivo temporal de la foto: " + e.getMessage());
+					        }
+					    }
 						String tag = resultado.getString("codigo_tag");
 						Empleado empleado = new Empleado(idEmp, nombreEmp, apellido1, apellido2, dni, genero, puesto, email, nivelAcceso, fotoTemporal, tag);
 						return empleado.crear();
 						
-	                } else if (tipoEntidad.equals("temporal")) {
+		                } else if (tipoEntidad.equals("temporal")) {
 	                    // Procesar datos del usuario temporal
 	                    String nombre = resultado.getString("nombre");
 	                    String apellido1 = resultado.getString("apellido1");
@@ -405,6 +474,12 @@ public class ConexionDB {
 		return null;
 	}
 	
+	/**
+	 * Registra una entrada o salida en la tabla registros para la entidad
+	 * especificada.
+	 *
+	 * @param idEntidad identificador de la entidad.
+	 */
 	public void registrarEntradaSalida(int idEntidad) {
 		
 		String sql = "INSERT INTO registros (id_entidad, fecha_hora, tipo_registro) VALUES (?, ?, ?)";
@@ -425,14 +500,21 @@ public class ConexionDB {
 			}
 					
 				} catch(SQLException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-					System.out.println("No se ha podido registrar la entrada/salida: " + e.getMessage());
-				}
-		
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+				System.out.println("No se ha podido registrar la entrada/salida: " + e.getMessage());
+			}
+			
 		
 	}
 	
+	/**
+	 * Determina el tipo de registro (entrada/salida) en función del último
+	 * registro del día para la entidad indicada.
+	 *
+	 * @param idEntidad identificador de la entidad.
+	 * @return "entrada" o "salida" según corresponda.
+	 */
 	public String tipoRegistro(int idEntidad) {
         
         String ultimoTipo = null; // Para guardar el último tipo de registro de hoy
@@ -478,6 +560,19 @@ public class ConexionDB {
         }
     }
 	
+	/**
+	 * Actualiza los datos de un empleado en la tabla empleados.
+	 *
+	 * @param idEmpleado identificador del empleado
+	 * @param name nombre
+	 * @param lastName1 primer apellido
+	 * @param lastName2 segundo apellido
+	 * @param dni DNI
+	 * @param genero género
+	 * @param puesto puesto
+	 * @param email correo
+	 * @param nivelAcceso nivel de acceso
+	 */
 	public void actualizarEmpleado(int idEmpleado,String name,String lastName1,String lastName2,String dni,String genero,String puesto,String email,int nivelAcceso) {
 		
 		String sql = "UPDATE empleados SET nombre = ?, apellido1 = ?, apellido2 = ?, dni = ?, genero = ?, puesto = ?, email = ?, nivel_acceso = ? WHERE id_entidad = ?";
@@ -508,6 +603,16 @@ public class ConexionDB {
 		}
 	}
 	
+	/**
+	 * Actualiza los datos de un usuario temporal.
+	 *
+	 * @param idTemporal id de la visita
+	 * @param name nombre
+	 * @param lastName1 primer apellido
+	 * @param lastName2 segundo apellido
+	 * @param dni dni
+	 * @param motivoVisita motivo
+	 */
 	public void actualizarTemporal(int idTemporal,String name,String lastName1,String lastName2,String dni,String motivoVisita) {
 		
 		String sql = "UPDATE usuarios_temporales SET nombre = ?, apellido1 = ?, apellido2 = ?, dni = ?, motivo_visita = ? WHERE id_entidad = ?";
@@ -535,6 +640,12 @@ public class ConexionDB {
 		}
 	}
 	
+	/**
+	 * Obtiene una lista de empleados a partir de la consulta SQL proporcionada.
+	 *
+	 * @param sql consulta SELECT que devuelve columnas de la tabla empleados
+	 * @return lista de {@link Empleado}
+	 */
 	public ArrayList<Empleado> obtenerEmpleados(String sql) {
 		
 		
@@ -566,14 +677,20 @@ public class ConexionDB {
 			}
 					
 				} catch(SQLException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-					System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
-				}
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+			}
 		
 		return empList;
 	}
 	
+	/**
+	 * Obtiene la lista de usuarios temporales según la consulta SQL indicada.
+	 *
+	 * @param sql consulta SELECT
+	 * @return lista de {@link VisitaTemporal}
+	 */
 	public ArrayList<VisitaTemporal> obtenerTemporal(String sql){
 		
 		ArrayList<VisitaTemporal> tempList = new ArrayList<VisitaTemporal>();
@@ -603,15 +720,25 @@ public class ConexionDB {
 			}
 					
 				} catch(SQLException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-					System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
-				}
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+			}
 		
 		return tempList;
 		
 	}
 	
+	/**
+	 * Obtiene los registros de entradas/salidas de una entidad entre dos fechas
+	 * y devuelve una lista de {@link RegistroUsuarios} con la información
+	 * formateada.
+	 *
+	 * @param idEntidad identificador de la entidad
+	 * @param fechaInicio fecha de inicio (inclusive)
+	 * @param fechaFin fecha final (inclusive)
+	 * @return lista de registros
+	 */
 	public ArrayList<RegistroUsuarios> obtenerRegistrosNombre(int idEntidad, LocalDate fechaInicio, LocalDate fechaFin){
 		
 		ArrayList<RegistroUsuarios> registros = new ArrayList<>();
@@ -654,15 +781,22 @@ public class ConexionDB {
 			}
 					
 				} catch(SQLException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-					System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
-				}
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
+			}
 		
-				return registros;
+			return registros;
 		
 	}
 	
+	/**
+	 * Elimina un usuario y su historial de registros en una transacción.
+	 *
+	 * @param id identificador de la entidad a eliminar
+	 * @return {@code true} si la eliminación fue exitosa, {@code false}
+	 *         en caso de error.
+	 */
 	public boolean eliminarUsuario(int id) {
 		
 		String sqlEntidad = "DELETE FROM entidades WHERE id_entidad = ?";

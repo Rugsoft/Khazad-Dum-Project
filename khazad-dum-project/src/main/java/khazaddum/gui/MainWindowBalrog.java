@@ -32,6 +32,15 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 
+/**
+ * Ventana principal para usuarios de nivel Balrog/Goblin.
+ * <p>
+ * Proporciona la interfaz para recibir lecturas RFID en tiempo real,
+ * mostrar información breve del usuario detectado y registrar entradas/salidas.
+ * Implementa {@link SerialDataCallback} para recibir datos desde la clase
+ * de comunicación serie y {@link ActionListener} para manejar eventos de GUI.
+ * </p>
+ */
 public class MainWindowBalrog extends JFrame implements ActionListener, SerialDataCallback {
 
 	private static final long serialVersionUID = 1L;
@@ -56,6 +65,13 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
     private javax.swing.Timer clearDataTimer;
     private JButton btnBackLogin;
 
+    /**
+     * Construye la ventana principal para el usuario con el nombre y nivel dados.
+     * Inicia la comunicación serie y registra el callback para recibir tags.
+     *
+     * @param user  nombre del usuario conectado
+     * @param nivel nivel de acceso del usuario
+     */
 	public MainWindowBalrog(String user, String nivel) {
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setUndecorated(true);
@@ -77,12 +93,23 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		
 	}
 
+	/**
+	 * Actualiza el saludo mostrado en la cabecera con el usuario y su nivel.
+	 *
+	 * @param user  nombre del usuario
+	 * @param nivel nivel de acceso del usuario
+	 */
 	private void saludo(String user, String nivel) {
 		
 		lblSaludo.setText("Bienvenido " + user + " - Nivel: " + nivel);
 		
 	}
 
+	/**
+	 * Crea y posiciona los elementos visuales de la interfaz.
+	 *
+	 * @param nivel indicador de nivel para ajustar ciertos controles.
+	 */
 	private void visualElements(String nivel) {
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(158, 182, 226));
@@ -249,6 +276,9 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		
 	}
 
+	/**
+	 * Maneja acciones de botones del formulario (registro temporal, volver al login).
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(btnTempUser == e.getSource()) {
@@ -263,7 +293,11 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		}
 		
 	}
-	
+
+	/**
+	 * Abre el diálogo de registro de usuario temporal y delega el callback de
+	 * lectura serie al nuevo diálogo mientras esté abierto.
+	 */
 	private void usuarioTemporal() {
 		
 		final SerialDataCallback mainCallback = this;
@@ -285,6 +319,10 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		dialog.setVisible(true);
 	}
 
+	/**
+	 * Prepara los campos de la vista con la fila seleccionada en la tabla de
+	 * historial. Inicia un temporizador para limpiar los datos después de 10s.
+	 */
 	private void prepararUsuario() {
 		
 		if (clearDataTimer != null && clearDataTimer.isRunning()) {
@@ -367,6 +405,11 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 
 	}
 
+	/**
+	 * Callback llamado cuando llega una línea desde la comunicación serie.
+	 *
+	 * @param dato cadena recibida desde el dispositivo serie (tag RFID).
+	 */
 	@Override
 	public void onDatoRecibido(String dato) {
 		mensajeDeArduino = dato;
@@ -376,6 +419,13 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		
 	}
 
+	/**
+	 * Añade una fila a la tabla de historial en memoria.
+	 *
+	 * @param nombre   nombre del usuario
+	 * @param apellido primer apellido del usuario
+	 * @param ts       marca temporal (string) de la entrada/salida
+	 */
 	private void actualizarTabla(String nombre, String apellido, String ts) {
 		
 		modelo.addRow(new Object[] {nombre, apellido, ts});
@@ -384,11 +434,20 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		
 	}
 
+	/**
+	 * Llama a la lógica para registrar en base de datos la entrada/salida.
+	 *
+	 * @param idEntidad id de la entidad a registrar
+	 */
 	private void registrarEntradasYSalidas(int idEntidad) {
 		ConexionDB conex = new ConexionDB();
 		conex.registrarEntradaSalida(idEntidad);
 	}
 
+	/**
+	 * Procesa el tag leído: busca la entidad, muestra datos, registra y
+	 * confirma la lectura con el lector enviando una letra 'P'.
+	 */
 	private void entradaUsuario() {
 		
 		if (clearDataTimer != null && clearDataTimer.isRunning()) {
@@ -400,13 +459,13 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			ConexionDB conex = new ConexionDB();
 			ResultadoIdentificacion resultado = conex.buscarEmpleadoPorTag(mensajeDeArduino);
 			
-	        // Si es nulo (tag no encontrado), limpiamos campos y salimos del método.
-	        if (resultado == null) {
-	            System.err.println("Tag no reconocido: " + mensajeDeArduino);
-	            limpiarCampos();
-	            return; // Salimos para no ejecutar el código de abajo
-	        }
-	        
+		    // Si es nulo (tag no encontrado), limpiamos campos y salimos del método.
+		    if (resultado == null) {
+		        System.err.println("Tag no reconocido: " + mensajeDeArduino);
+		        limpiarCampos();
+		        return; // Salimos para no ejecutar el código de abajo
+		    }
+		    
 	        if (resultado.tipoEntidad().equals("empleado")) {
 				
 				Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
@@ -485,6 +544,9 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		miConexion.enviarLetra('P'); // Enviar señal de confirmación a Arduino
 	}
 
+	/**
+	 * Limpia todos los campos de la vista dejando la interfaz vacía.
+	 */
 	private void limpiarCampos() {
 		textName.setText("");
 		textLastName1.setText("");
@@ -499,6 +561,11 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		
 	}
 
+	/**
+	 * Muestra una imagen escalada en el JLabel de foto manteniendo la proporción.
+	 *
+	 * @param iconoOriginal icono original a escalar
+	 */
 	private void mostrarFotoEscalada(ImageIcon iconoOriginal) {
 		
 		// Escalo la imagen al tamaño del JLabel
@@ -511,4 +578,4 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 	    lblPicture.setIcon(iconoEscalado);
 		
 	}
-}	
+}

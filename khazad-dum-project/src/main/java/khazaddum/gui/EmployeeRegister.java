@@ -34,6 +34,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+/**
+ * Diálogo para registrar nuevos empleados.
+ * <p>
+ * Permite introducir los datos del empleado, seleccionar foto, leer un tag
+ * RFID mediante {@link ComunicacionSerie} y guardar el nuevo empleado en la
+ * base de datos a través de {@link ConexionDB}.
+ * </p>
+ */
 public class EmployeeRegister extends JDialog implements ActionListener, SerialDataCallback {
 
 	private static final long serialVersionUID = 1L;
@@ -54,7 +62,9 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
     private JTextField textEmail;
     private JComboBox<String> comboNivel;
 
-	
+    /**
+     * Construye el diálogo de registro de empleados.
+     */
 	public EmployeeRegister() {
 		setTitle("Registro de Empleado");
 		getContentPane().setBackground(new Color(0, 128, 128));
@@ -65,6 +75,9 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
 		
 	}
 	
+	/**
+	 * Inicializa y añade los componentes visuales al diálogo.
+	 */
 	private void elementosVisuales() {
 		textName = new JTextField();
 		textName.setColumns(10);
@@ -175,6 +188,11 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
         }
     }
 
+    /**
+     * Manejador de acciones de los botones del diálogo.
+     *
+     * @param e evento de acción generado por un componente.
+     */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(btnPicture == e.getSource()) {
@@ -183,51 +201,55 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
 		}
 		if (btnRegister == e.getSource()) {
 			
+					// Validación simple
+				if ( !textName.getText().isEmpty() && !textLasName1.getText().isEmpty() && !textLastName2.getText().isEmpty() && !textDNI.getText().isEmpty() && 
+					 !textEmail.getText().isEmpty() && !textRole.getText().isEmpty() && comboGender.getSelectedIndex() != 0 && comboNivel.getSelectedIndex() != 0 && selectedPicture != null ) {
 					
-			// Validación simple
-			if ( !textName.getText().isEmpty() && !textLasName1.getText().isEmpty() && !textLastName2.getText().isEmpty() && !textDNI.getText().isEmpty() && 
-				 !textEmail.getText().isEmpty() && !textRole.getText().isEmpty() && comboGender.getSelectedIndex() != 0 && comboNivel.getSelectedIndex() != 0 && selectedPicture != null ) {
-				
-				// 1. Recoger y validar los datos actuales
-				String nombre = textName.getText();
-				String apellido1 = textLasName1.getText();
-				String apellido2 = textLastName2.getText();
-				String dni = textDNI.getText();
-				String email = textEmail.getText();
-				String role = textRole.getText();
-				String genero = (String) comboGender.getSelectedItem();
-				int nivelAcceso = Integer.parseInt((String) comboNivel.getSelectedItem());
-				// 2. Abrir el diálogo de lectura RFID
-				
-				miConexion = new ComunicacionSerie();
-				miConexion.setSerialDataCallback(this);
-				miConexion.conectar();
-				
-				JOptionPane.showMessageDialog(this, "Por favor, acerque el tag RFID al lector.", "Informacion", JOptionPane.INFORMATION_MESSAGE);
-				
-				// 3. Recoger el resultado del diálogo RFID
-				String codigoTag = mensajeDeArduino;
+					// 1. Recoger y validar los datos actuales
+					String nombre = textName.getText();
+					String apellido1 = textLasName1.getText();
+					String apellido2 = textLastName2.getText();
+					String dni = textDNI.getText();
+					String email = textEmail.getText();
+					String role = textRole.getText();
+					String genero = (String) comboGender.getSelectedItem();
+					int nivelAcceso = Integer.parseInt((String) comboNivel.getSelectedItem());
+					// 2. Abrir el diálogo de lectura RFID
+					
+					miConexion = new ComunicacionSerie();
+					miConexion.setSerialDataCallback(this);
+					miConexion.conectar();
+					
+					JOptionPane.showMessageDialog(this, "Por favor, acerque el tag RFID al lector.", "Informacion", JOptionPane.INFORMATION_MESSAGE);
+					
+					// 3. Recoger el resultado del diálogo RFID
+					String codigoTag = mensajeDeArduino;
 							
-				// 4. Continuar solo si se leyó un tag
-				if (codigoTag != null && !codigoTag.isEmpty()) {
-					// 5. Llamar al registro CON TODOS los datos
-					Empleado emp = new Empleado(0, nombre, apellido1, apellido2, dni, genero, role, email, nivelAcceso, selectedPicture, codigoTag);
-					registerEmployee(emp);
-					miConexion.desconectar();
-					this.dispose(); // Cierra la ventana de registro
+					// 4. Continuar solo si se leyó un tag
+					if (codigoTag != null && !codigoTag.isEmpty()) {
+						// 5. Llamar al registro CON TODOS los datos
+						Empleado emp = new Empleado(0, nombre, apellido1, apellido2, dni, genero, role, email, nivelAcceso, selectedPicture, codigoTag);
+						registerEmployee(emp);
+						miConexion.desconectar();
+						this.dispose(); // Cierra la ventana de registro
+					} else {
+						// El usuario cerró el diálogo RFID o no se leyó nada
+						JOptionPane.showMessageDialog(this, "Registro cancelado. No se leyó ningún tag RFID.", "Cancelado", JOptionPane.WARNING_MESSAGE);
+					}
+					
 				} else {
-					// El usuario cerró el diálogo RFID o no se leyó nada
-					JOptionPane.showMessageDialog(this, "Registro cancelado. No se leyó ningún tag RFID.", "Cancelado", JOptionPane.WARNING_MESSAGE);
-				}
-				
-			} else {
-				JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos y seleccione una foto.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
-				return;
-			}		
+					JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos y seleccione una foto.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+					return;
+				} 			
 			
 		}
 	}
 
+	/**
+	 * Registra el empleado en la base de datos usando {@link ConexionDB#añadirEmpleado(Object[])}.
+	 *
+	 * @param emp objeto {@link Empleado} con los datos a persistir.
+	 */
 	private void registerEmployee(Empleado emp) {
 
 				
@@ -246,12 +268,16 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
 		}
 	}
 
+	/**
+	 * Abre un {@link JFileChooser} para seleccionar la imagen y guarda el fichero
+	 * seleccionado en {@link #selectedPicture}.
+	 */
 	private void cargarImagen() {
 		
 		FileNameExtensionFilter filtro = new FileNameExtensionFilter(
-			    "Archivos de Imagen (JPG, PNG, GIF)", // Descripción que ve el usuario
-			    "jpg", "jpeg", "png", "gif"           // Extensiones permitidas
-			);
+		    "Archivos de Imagen (JPG, PNG, GIF)", // Descripción que ve el usuario
+		    "jpg", "jpeg", "png", "gif"           // Extensiones permitidas
+		);
 		filechoser.setFileFilter(filtro);
 		
 		int result = filechoser.showOpenDialog(null);
@@ -260,10 +286,15 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
 			
 		    selectedPicture = filechoser.getSelectedFile();
 		    txtRuraFoto.setText(selectedPicture.getAbsolutePath());
-		 
-		}	
+		 	
+		} 	
 	}
 
+	/**
+	 * Callback invocado cuando se recibe una línea desde la comunicación serie.
+	 *
+	 * @param dato línea recibida desde Arduino/lector RFID.
+	 */
 	@Override
 	public void onDatoRecibido(String dato) {
 		mensajeDeArduino = dato;

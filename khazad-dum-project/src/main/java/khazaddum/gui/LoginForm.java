@@ -24,14 +24,10 @@ import javax.swing.JPasswordField;
  * Representa el cuadro de diálogo de inicio de sesión de la aplicación.
  * Permite a los usuarios ingresar sus credenciales (usuario y contraseña)
  * para acceder al sistema o navegar al formulario de registro.
- *
+ * <p>
  * Hereda de {@link JDialog} y implementa {@link ActionListener} para manejar
  * los eventos de los botones.
- *
- * @see JDialog
- * @see ActionListener
- * @see ConexionDB
- * @see RegisterForm
+ * </p>
  */
 public class LoginForm extends JDialog implements ActionListener {
 
@@ -56,7 +52,6 @@ public class LoginForm extends JDialog implements ActionListener {
 	/** Instancia del formulario de registro ({@link RegisterForm}) que se puede mostrar. */
 	private RegisterForm dialog = new RegisterForm();
 
-	
 	/**
 	 * Constructor principal de la clase LoginForm.
 	 * Configura las propiedades iniciales del diálogo (título, tamaño, posición)
@@ -77,8 +72,6 @@ public class LoginForm extends JDialog implements ActionListener {
 	/**
 	 * Método privado para inicializar y configurar todos los componentes visuales
 	 * (GUI) del formulario de inicio de sesión.
-	 * Esto incluye etiquetas, el logo, campos de texto, botones, y sus respectivas
-	 * propiedades (bordes, iconos, listeners).
 	 */
 	private void visualElements() {
 		
@@ -122,7 +115,7 @@ public class LoginForm extends JDialog implements ActionListener {
 	/**
 	 * Manejador central de eventos de acción para esta clase.
 	 * Captura los clics en los botones {@link #btnLogin} y {@link #btnRegister}.
-	 * * @param e El evento de acción que se disparó (generalmente un clic de botón).
+	 * @param e El evento de acción que se disparó (generalmente un clic de botón).
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -139,15 +132,7 @@ public class LoginForm extends JDialog implements ActionListener {
 
 	/**
 	 * Procesa el intento de inicio de sesión.
-	 * 1. Recoge las credenciales (usuario y contraseña) de los campos de texto.
-	 * 2. Valida que los campos no estén vacíos.
-	 * 3. Llama a {@link ConexionDB#comprobarLogin(String, String, String)} para verificar
-	 * las credenciales contra la base de datos.
-	 * 4. Si la validación es exitosa, determina el "nivel" (rol) del usuario.
-	 * 5. Abre la ventana principal ({@code MainWindowBalrog}) correspondiente al rol.
-	 * 6. Cierra (dispose) esta ventana de login.
-	 * 7. Muestra mensajes de error ({@link JOptionPane}) si los campos están vacíos
-	 * o si las credenciales son incorrectas.
+	 * Valida los campos y llama a {@link ConexionDB#comprobarLogin(String, String, String)}.
 	 */
 	private void loginCheck() {
 		
@@ -191,8 +176,7 @@ public class LoginForm extends JDialog implements ActionListener {
 	}
 
 	/**
-	 * Muestra el formulario de registro ({@link #dialog})
-	 * haciéndolo visible.
+	 * Muestra el formulario de registro ({@link #dialog}) haciéndolo visible.
 	 */
 	private void registerForm() {
 		dialog.setVisible(true);

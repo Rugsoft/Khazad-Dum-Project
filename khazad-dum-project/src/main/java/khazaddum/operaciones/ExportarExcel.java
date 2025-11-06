@@ -14,14 +14,27 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+/**
+ * Utilidad para exportar el contenido de un TableModel a un archivo Excel (.xlsx)
+ * usando Apache POI.
+ */
 public class ExportarExcel {
 	
 	private TableModel modelo;
 	
+	/**
+	 * Constructor que recibe el modelo de tabla a exportar.
+	 *
+	 * @param modelo instancia de {@link TableModel} que contiene los datos.
+	 */
 	public ExportarExcel(TableModel modelo) {
 		this.modelo = modelo;
 	}
 	
+	/**
+	 * Abre un {@link JFileChooser} para seleccionar la ruta de guardado y
+	 * crea un archivo Excel con los datos del modelo.
+	 */
 	public void exportar() {
 		
 		// --- 1. Crear el JFileChooser ---

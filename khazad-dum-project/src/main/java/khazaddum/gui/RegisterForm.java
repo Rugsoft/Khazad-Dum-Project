@@ -29,6 +29,13 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import java.awt.Cursor;
 
+/**
+ * Diálogo para registrar nuevos usuarios/administradores del sistema.
+ * <p>
+ * Permite introducir los datos del usuario, seleccionar su rol y almacenar
+ * las credenciales en la base de datos mediante {@link ConexionDB}.
+ * </p>
+ */
 public class RegisterForm extends JDialog implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
@@ -41,7 +48,9 @@ public class RegisterForm extends JDialog implements ActionListener{
 	private JButton btnRegister;
 	private List<UserLogin> listaUsuarios = new ArrayList<>();
 
-
+	/**
+	 * Construye el formulario de registro y configura la interfaz gráfica.
+	 */
 	public RegisterForm() {
 		setTitle("Registro de Usuarios/Admins");
 		
@@ -52,10 +61,11 @@ public class RegisterForm extends JDialog implements ActionListener{
 		
 		visualElements();
 		
-		
-		
 	}
 	
+	/**
+	 * Inicializa y coloca los elementos visuales en el diálogo.
+	 */
 	private void visualElements() {
 		
 		JLabel lblNewLabel = new JLabel("");
@@ -149,6 +159,10 @@ public class RegisterForm extends JDialog implements ActionListener{
 		
 	}
 
+	/**
+	 * Valida los campos del formulario y registra un nuevo usuario en la base de datos.
+	 * Usa {@link ConexionDB#añadirUsuariosLogin(String, Object[])} para insertar.
+	 */
 	private void registrarUsuario() {
 		
 		// Validar campos vacíos correctamente
@@ -186,6 +200,9 @@ public class RegisterForm extends JDialog implements ActionListener{
 		
 	}
 	
+	/**
+	 * Limpia los campos del formulario.
+	 */
 	public void limpiarCampos(){
 		
 		textName.setText("");

@@ -44,40 +44,54 @@ import javax.swing.JRadioButton;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class MainWindowGandalf extends JFrame implements ActionListener{
+/**
+ * Ventana principal para administradores (Gandalf) con funcionalidades de
+ * gestión de empleados/temporales y exportación de datos.
+ * <p>
+ * Contiene tablas, filtros de búsqueda, pestañas para registros y utilidades
+ * para exportar a PDF/XLSX. Muchas acciones disparan operaciones en
+ * {@link ConexionDB}.
+ * </p>
+ */
+public class MainWindowGandalf extends JFrame implements ActionListener {
 
-	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
-	private JTable tablaPrincipal;
-	private JTable tablaEnUso;
-	private JLabel lblSaludoGandalf;
-	private JButton btnAñadirEmp;
-	private DefaultTableModel modeloP;
-	private DefaultTableModel modeloR;
-	private ArrayList<Empleado> empList;
-	private ArrayList<VisitaTemporal> tempList;
-	private ArrayList<RegistroUsuarios> registros;
-	private JTabbedPane tabbedPane;
-	private JTable tablaRegistros;
-	private JTextField textBusqueda;
-	private JComboBox<String> comboBusquedaTipo;
-	private DatePicker datePickerInicio;
-	private DatePicker datePickerFinal;
-	private JButton btnBuscar;
-	private JButton btnGuardar;
-	private JButton btnEliminar;
-	private JButton btnExportPDF;
-	private JButton btnExportExcel;
-	private String tipoEntidad = "empleado"; // "empleado" o "temporal"
-	private JRadioButton radioEmp;
-	private JRadioButton radioTemp;
-	private JCheckBox checkAll;
-	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private JButton btnBalrog;
-	private MainWindowBalrog balrog;
+    private static final long serialVersionUID = 1L;
+    private JPanel contentPane;
+    private JTable tablaPrincipal;
+    private JTable tablaEnUso;
+    private JLabel lblSaludoGandalf;
+    private JButton btnAñadirEmp;
+    private DefaultTableModel modeloP;
+    private DefaultTableModel modeloR;
+    private ArrayList<Empleado> empList;
+    private ArrayList<VisitaTemporal> tempList;
+    private ArrayList<RegistroUsuarios> registros;
+    private JTabbedPane tabbedPane;
+    private JTable tablaRegistros;
+    private JTextField textBusqueda;
+    private JComboBox<String> comboBusquedaTipo;
+    private DatePicker datePickerInicio;
+    private DatePicker datePickerFinal;
+    private JButton btnBuscar;
+    private JButton btnGuardar;
+    private JButton btnEliminar;
+    private JButton btnExportPDF;
+    private JButton btnExportExcel;
+    private String tipoEntidad = "empleado"; // "empleado" o "temporal"
+    private JRadioButton radioEmp;
+    private JRadioButton radioTemp;
+    private JCheckBox checkAll;
+    private final ButtonGroup buttonGroup = new ButtonGroup();
+    private JButton btnBalrog;
+    private MainWindowBalrog balrog;
 
-	
-	public MainWindowGandalf(String user, String nivel) {
+    /**
+     * Crea la ventana principal con el usuario y nivel mostrados en el saludo.
+     *
+     * @param user  nombre del usuario autenticado
+     * @param nivel nivel de acceso del usuario
+     */
+    public MainWindowGandalf(String user, String nivel) {
 		setResizable(false);
 		setTitle("Master of Puppets");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -96,15 +110,23 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		
 	}
 	
-	
-
+	/**
+	 * Actualiza el texto del label de saludo con el nombre de usuario y su nivel.
+	 *
+	 * @param user  nombre del usuario
+	 * @param nivel nivel de acceso mostrado
+	 */
 	private void saludo(String user, String nivel) {
-		
 		lblSaludoGandalf.setText("Bienvenido " + user + " - Nivel: " + nivel);
-		
 	}
 
-
+	/**
+	 * Construye y organiza todos los componentes visuales de la ventana,
+	 * incluyendo paneles, pestañas, botones y controles de búsqueda.
+	 * <p>
+	 * No realiza lógica de negocio; solo inicializa la interfaz gráfica.
+	 * </p>
+	 */
 	private void elementosVisuales() {
 		contentPane.setLayout(null);
 		JPanel panel = new JPanel();
@@ -275,6 +297,10 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		
 	}
 	
+	/**
+	 * Renderizador personalizado para JComboBox que aplica un color de fondo
+	 * específico y mantiene el texto en negro.
+	 */
 	class CustomColorRenderer extends DefaultListCellRenderer {
 
         private final Color MI_COLOR_DE_FONDO = new Color(0, 128, 128);
@@ -294,7 +320,13 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
         }
     }
 
-
+	/**
+	 * Carga los empleados desde la base de datos y rellena la tabla principal.
+	 * Oculta la columna ID visualmente para evitar mostrarse al usuario.
+	 * <p>
+	 * Establece el campo tipoEntidad a "empleado" y actualiza modeloP.
+	 * </p>
+	 */
 	private void cargarTablaEmpleados() {
 		
 		tipoEntidad = "empleado";
@@ -334,6 +366,13 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		
 	}
 	
+	/**
+	 * Carga los usuarios temporales desde la base de datos y rellena la tabla.
+	 * Ajusta anchos de columnas para ocultar datos binarios de fotos.
+	 * <p>
+	 * Establece el campo tipoEntidad a "temporal" y actualiza modeloP.
+	 * </p>
+	 */
 	private void cargarTablaTemporales() {
 		
 		tipoEntidad = "temporal";
@@ -383,6 +422,12 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 	}
 
 
+	/**
+	 * Maneja los eventos de acción de botones y controles registrados en la
+	 * interfaz (Agregar, Guardar, Eliminar, Exportar, Buscar, Navegar a Balrog, etc.).
+	 *
+	 * @param e evento de acción disparado por un componente
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (btnAñadirEmp == e.getSource()) {
@@ -468,6 +513,11 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 
 
 
+	/**
+	 * Exporta la tabla dada a un archivo PDF usando la utilidad ExportarPDF.
+	 *
+	 * @param tablaActiva la JTable cuyo modelo se desea exportar
+	 */
 	private void exportarAPDF(JTable tablaActiva) {
 		
 		TableModel modelo = tablaActiva.getModel();
@@ -478,6 +528,11 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 
 
 
+	/**
+	 * Exporta la tabla dada a un archivo Excel (.xlsx) usando ExportarExcel.
+	 *
+	 * @param tablaActiva la JTable cuyo modelo se desea exportar
+	 */
 	private void exportarAExcel(JTable tablaActiva) {
 		
 		TableModel modelo = tablaActiva.getModel();
@@ -488,6 +543,10 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 
 
 
+	/**
+	 * Elimina el usuario seleccionado en la tabla principal tras confirmar
+	 * con el usuario y delega la operación a ConexionDB.eliminarUsuario.
+	 */
 	private void eliminarUsuario() {
 
 		int filaSeleccionada = tablaPrincipal.getSelectedRow();
@@ -537,6 +596,13 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 
 
 
+	/**
+	 * Busca usuarios temporales en la base de datos según el criterio y valor
+	 * proporcionados, actualizando la tabla principal con los resultados.
+	 *
+	 * @param criterio     criterio de búsqueda visible ("Por Nombre" o "Por DNI")
+	 * @param valorBusqueda valor de búsqueda, sin comodines
+	 */
 	private void buscarTemporal(String criterio, String valorBusqueda) {
 
 		tempList = null;
@@ -609,6 +675,13 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 
 
 
+	/**
+	 * Busca empleados en la base de datos según el criterio y valor
+	 * proporcionados, actualizando la tabla principal con los resultados.
+	 *
+	 * @param criterio     criterio de búsqueda visible ("Por Nombre" o "Por DNI")
+	 * @param valorBusqueda valor de búsqueda, sin comodines
+	 */
 	private void buscarEmpleado(String criterio, String valorBusqueda) {
 		
 		empList = null;
@@ -673,7 +746,13 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 	}
 
 
-
+	/**
+	 * Carga los registros de entrada/salida asociados a la entidad con el ID
+	 * dado. Usa las fechas seleccionadas en los DatePicker como rango. Si no
+	 * hay fechas, usa un rango por defecto amplio.
+	 *
+	 * @param idEmpleado id de la entidad (empleado o temporal) para consultar registros
+	 */
 	private void cargarTablaRegistro(int idEmpleado) {
 		
 		java.time.LocalDate fechaInicio = datePickerInicio.getDate();
@@ -711,6 +790,10 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		}
 	}
 	
+	/**
+	 * Limpia y reinicializa la tabla de registros a un modelo vacío con las
+	 * columnas esperadas.
+	 */
 	private void limpiarTablaRegistro() {
 		modeloR = new DefaultTableModel();
 	    modeloR.addColumn("Fecha/Hora");
@@ -724,6 +807,13 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 	}
 
 
+	/**
+	 * Toma los datos editados de la tabla principal y los persiste en la base
+	 * de datos. Si tipo == "empleado" actualiza una fila; si es "temporal"
+	 * recorre todas las filas para aplicar cambios.
+	 *
+	 * @param tipo indica si se modifican "empleado" o "temporal"
+	 */
 	private void modificarEmpleado(String tipo) {
 		
 		if (tablaPrincipal.isEditing()) {
@@ -775,6 +865,13 @@ public class MainWindowGandalf extends JFrame implements ActionListener{
 		
 	}
 	
+	/**
+	 * Devuelve la JTable correspondiente a la pestaña actualmente seleccionada.
+	 * - índice 0 -> tablaPrincipal
+	 * - índice 1 -> tablaRegistros
+	 *
+	 * @return la JTable activa o null si la pestaña no tiene tabla asociada
+	 */
 	private JTable getTablaActiva() {
 	    // Obtiene el índice de la pestaña seleccionada (0, 1, 2...)
 	    int index = tabbedPane.getSelectedIndex();

@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"khazaddum.gui"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"khazaddum.gui"},{"l":"khazaddum.modelo"},{"l":"khazaddum.operaciones"},{"l":"khazzadum.main"},{"l":"org.eclipse.wb.swing"}];updateSearchResults();

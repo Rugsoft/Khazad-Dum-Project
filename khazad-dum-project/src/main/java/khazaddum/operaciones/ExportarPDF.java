@@ -14,14 +14,28 @@ import org.openpdf.text.pdf.PdfPCell;
 import org.openpdf.text.pdf.PdfPTable;
 import org.openpdf.text.pdf.PdfWriter;
 
+/**
+ * Utilidad para exportar el contenido de un {@link TableModel} a un archivo PDF
+ * usando la librería OpenPDF (API compatible con iText 5).
+ */
 public class ExportarPDF {
 
 	private TableModel modelo;
 	
+	/**
+	 * Constructor que recibe el modelo de tabla que se desea exportar.
+	 *
+	 * @param modelo instancia de {@link TableModel} con los datos.
+	 */
 	public ExportarPDF(TableModel modelo) {
 		this.modelo = modelo;
 	}
 	
+	/**
+	 * Abre un selector de archivo para elegir la ruta y guarda un PDF con los
+	 * datos del modelo de tabla. Muestra mensajes de diálogo en caso de éxito
+	 * o error.
+	 */
 	public void exportar() {
 
 		// --- 1. Crear el JFileChooser ---
