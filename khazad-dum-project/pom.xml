@@ -25,33 +25,66 @@
     </dependency>
     
       <!-- LGoodDatePicker para seleccionar fechas en swing -->
-  	<dependency>
+    	<dependency>
     <groupId>com.github.lgooddatepicker</groupId>
     <artifactId>LGoodDatePicker</artifactId>
     <version>11.2.1</version>
-	</dependency>
-	
-	<!-- https://mvnrepository.com/artifact/com.github.librepdf/openpdf -->
-	<dependency>
+    	</dependency>
+    
+    	<!-- https://mvnrepository.com/artifact/com.github.librepdf/openpdf -->
+    	<dependency>
     <groupId>com.github.librepdf</groupId>
     <artifactId>openpdf</artifactId>
     <version>3.0.0</version>
-	</dependency>
-	
-	<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
-	<dependency>
+    	</dependency>
+    
+    	<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+    	<dependency>
     <groupId>org.apache.poi</groupId>
     <artifactId>poi</artifactId>
     <version>5.4.1</version>
-	</dependency>
-	
-	<dependency>
+    	</dependency>
+    
+    	<dependency>
     <groupId>org.apache.poi</groupId>
     <artifactId>poi-ooxml</artifactId>
     <version>5.4.1</version>
-	</dependency>
+    	</dependency>
+    
+    	<!-- Test dependencies -->
+    	<dependency>
+    	  <groupId>org.junit.jupiter</groupId>
+    	  <artifactId>junit-jupiter-api</artifactId>
+    	  <version>5.10.0</version>
+    	  <scope>test</scope>
+    	</dependency>
+    	<dependency>
+    	  <groupId>org.junit.jupiter</groupId>
+    	  <artifactId>junit-jupiter-engine</artifactId>
+    	  <version>5.10.0</version>
+    	  <scope>test</scope>
+    	</dependency>
+    	<dependency>
+    	  <groupId>com.h2database</groupId>
+    	  <artifactId>h2</artifactId>
+    	  <version>2.2.224</version>
+    	  <scope>test</scope>
+    	</dependency>
     
   </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.1.2</version>
+        <configuration>
+          <useModulePath>false</useModulePath>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   
  
   

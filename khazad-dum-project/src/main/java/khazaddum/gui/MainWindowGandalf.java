@@ -84,7 +84,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
     private final ButtonGroup buttonGroup = new ButtonGroup();
     private JButton btnBalrog;
     private MainWindowBalrog balrog;
-
+ 
     /**
      * Crea la ventana principal con el usuario y nivel mostrados en el saludo.
      *
@@ -102,11 +102,11 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 		setLocationRelativeTo(null); // Centra la ventana
 		setContentPane(contentPane);
 		
-		elementosVisuales();
+		elementosVisuales(user, nivel);
 		saludo(user, nivel);
 		//cargarTablaTemporales();
 		cargarTablaEmpleados();
-		balrog = new MainWindowBalrog(user, nivel);
+		
 		
 	}
 	
@@ -127,7 +127,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 	 * No realiza lógica de negocio; solo inicializa la interfaz gráfica.
 	 * </p>
 	 */
-	private void elementosVisuales() {
+	private void elementosVisuales(String user, String nivel) {
 		contentPane.setLayout(null);
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 0, 306, 245);
@@ -148,7 +148,14 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 		panel.add(lblSaludoGandalf);
 		
 		btnBalrog = new JButton("Ir a Balrog");
-		btnBalrog.addActionListener(this);
+		btnBalrog.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				balrog = new MainWindowBalrog(user, nivel);
+				balrog.setVisible(true);
+				balrog.setLocationRelativeTo(null);
+			}
+		});
+		
 		btnBalrog.setBounds(98, 191, 100, 23);
 		panel.add(btnBalrog);
 		
@@ -460,13 +467,6 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 				return;
 			}
 			exportarAPDF(tablaEnUso);
-		}
-		
-		if (btnBalrog == e.getSource()) {
-			balrog.setVisible(true);
-			balrog.setLocationRelativeTo(null);
-			//this.dispose();
-			
 		}
 		
 		if(btnBuscar == e.getSource()) {

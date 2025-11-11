@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import khazaddum.modelo.ResultadoIdentificacion;
 import khazaddum.modelo.VisitaTemporal;
 import khazaddum.operaciones.ComunicacionSerie;
 import khazaddum.operaciones.ComunicacionSerie.SerialDataCallback;
@@ -198,7 +199,20 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 						
 					// 4. Continuar solo si se leyó un tag
 					if (codigoTag != null && !codigoTag.isEmpty()) {
-						// 5. Llamar al registro CON TODOS los datos
+						//5. Comprobar que el tag no esté ya registrado
+						try {
+							ResultadoIdentificacion provando = ConexionDB.buscarEmpleadoPorTag(codigoTag);
+							if (provando != null) {
+								// El tag ya está registrado
+								JOptionPane.showMessageDialog(this, "El tag RFID ya está registrado para otro empleado.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
+								miConexion.desconectar();
+								return;
+							}
+						} catch (Exception e1) {
+							System.out.println("Error al buscar el tag RFID: " + e1.getMessage());
+							e1.printStackTrace();
+						}
+						// 6. Llamar al registro CON TODOS los datos
 						registerTempUser(nombre, apellido1, apellido2, dni, motivo, horas, selectedPicture, codigoTag);
 						this.dispose(); // Cierra la ventana de registro
 					} else {

@@ -153,6 +153,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			public void mouseClicked(MouseEvent e) {
 				if (nivel.equals("Gandalf")) {
 					dispose();
+					miConexion.desconectar();
 				} else {
 					System.exit(0);
 				}
@@ -343,17 +344,17 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			
 			if (result.tipoEntidad().equals("empleado")) {
 				
-				textName.setText(String.valueOf(usuario[0]));
-				textLastName1.setText(String.valueOf(usuario[1]));
-				textLasName2.setText(String.valueOf(usuario[2]));
-				textDNI.setText(String.valueOf(usuario[3]));
-				textGender.setText(String.valueOf(usuario[4]));
-				textRole.setText(String.valueOf(usuario[5]));
-				textEmail.setText(String.valueOf(usuario[6]));
-				textAcces.setText(String.valueOf(usuario[7]));
-				if (usuario[8] != null && usuario[8] instanceof java.io.File) {
+				textName.setText(String.valueOf(usuario[1]));
+				textLastName1.setText(String.valueOf(usuario[2]));
+				textLasName2.setText(String.valueOf(usuario[3]));
+				textDNI.setText(String.valueOf(usuario[4]));
+				textGender.setText(String.valueOf(usuario[5]));
+				textRole.setText(String.valueOf(usuario[6]));
+				textEmail.setText(String.valueOf(usuario[7]));
+				textAcces.setText(String.valueOf(usuario[8]));
+				if (usuario[9] != null && usuario[9] instanceof java.io.File) {
 			        
-					java.io.File fotoFile = (java.io.File) usuario[8];
+					java.io.File fotoFile = (java.io.File) usuario[9];
 		            // Creo el icono original
 		            javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoFile.getAbsolutePath());
 		            // Llamo al nuevo método para que lo escale y lo muestre
@@ -367,17 +368,17 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 				
 			} else if (result.tipoEntidad().equals("temporal")) {
 				
-				textName.setText(String.valueOf(usuario[0]));
-				textLastName1.setText(String.valueOf(usuario[1]));
-				textLasName2.setText(String.valueOf(usuario[2]));
-				textDNI.setText(String.valueOf(usuario[3]));
+				textName.setText(String.valueOf(usuario[1]));
+				textLastName1.setText(String.valueOf(usuario[2]));
+				textLasName2.setText(String.valueOf(usuario[3]));
+				textDNI.setText(String.valueOf(usuario[4]));
 				textGender.setText("N/A");
 				textRole.setText("Visita Temporal");
 				textEmail.setText("N/A");
 				textAcces.setText("N/A");
-				if (usuario[5] != null && usuario[5] instanceof java.io.File) {
+				if (usuario[6] != null && usuario[6] instanceof java.io.File) {
 			        
-					java.io.File fotoFile = (java.io.File) usuario[5];
+					java.io.File fotoFile = (java.io.File) usuario[6];
 		            // Creo el icono original
 		            javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoFile.getAbsolutePath());
 		            // Llamo al nuevo método para que lo escale y lo muestre
@@ -469,17 +470,17 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 	        if (resultado.tipoEntidad().equals("empleado")) {
 				
 				Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
-				textName.setText(String.valueOf(usuario[0]));
-				textLastName1.setText(String.valueOf(usuario[1]));
-				textLasName2.setText(String.valueOf(usuario[2]));
-				textDNI.setText(String.valueOf(usuario[3]));
-				textGender.setText(String.valueOf(usuario[4]));
-				textRole.setText(String.valueOf(usuario[5]));
-				textEmail.setText(String.valueOf(usuario[6]));
-				textAcces.setText(String.valueOf(usuario[7]));
-				if (usuario[8] != null && usuario[8] instanceof java.io.File) {
+				textName.setText(String.valueOf(usuario[1]));
+				textLastName1.setText(String.valueOf(usuario[2]));
+				textLasName2.setText(String.valueOf(usuario[3]));
+				textDNI.setText(String.valueOf(usuario[4]));
+				textGender.setText(String.valueOf(usuario[5]));
+				textRole.setText(String.valueOf(usuario[6]));
+				textEmail.setText(String.valueOf(usuario[7]));
+				textAcces.setText(String.valueOf(usuario[8]));
+				if (usuario[9] != null && usuario[9] instanceof java.io.File) {
 			        
-					java.io.File fotoFile = (java.io.File) usuario[8];
+					java.io.File fotoFile = (java.io.File) usuario[9];
 		            // Creo el icono original
 		            javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoFile.getAbsolutePath());
 		            // Llamo al nuevo método para que lo escale y lo muestre
@@ -494,17 +495,17 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			} else if (resultado.tipoEntidad().equals("temporal")) {
 				
 				Object[] usuario = conex.obtenerDatosCompletos(resultado.idEntidad(), resultado.tipoEntidad());
-				textName.setText(String.valueOf(usuario[0]));
-				textLastName1.setText(String.valueOf(usuario[1]));
-				textLasName2.setText(String.valueOf(usuario[2]));
-				textDNI.setText(String.valueOf(usuario[3]));
+				textName.setText(String.valueOf(usuario[1]));
+				textLastName1.setText(String.valueOf(usuario[2]));
+				textLasName2.setText(String.valueOf(usuario[3]));
+				textDNI.setText(String.valueOf(usuario[4]));
 				textGender.setText("N/A");
 				textRole.setText("Visita Temporal");
 				textEmail.setText("N/A");
 				textAcces.setText("N/A");
-				if (usuario[5] != null && usuario[5] instanceof java.io.File) {
+				if (usuario[6] != null && usuario[6] instanceof java.io.File) {
 			        
-					java.io.File fotoFile = (java.io.File) usuario[5];
+					java.io.File fotoFile = (java.io.File) usuario[6];
 		            // Creo el icono original
 		            javax.swing.ImageIcon icono = new javax.swing.ImageIcon(fotoFile.getAbsolutePath());
 		            // Llamo al nuevo método para que lo escale y lo muestre

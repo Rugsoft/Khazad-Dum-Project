@@ -18,6 +18,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import khazaddum.modelo.Empleado;
+import khazaddum.modelo.ResultadoIdentificacion;
 import khazaddum.modelo.VisitaTemporal;
 import khazaddum.operaciones.ComunicacionSerie;
 import khazaddum.operaciones.ComunicacionSerie.SerialDataCallback;
@@ -227,7 +228,20 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
 							
 					// 4. Continuar solo si se leyó un tag
 					if (codigoTag != null && !codigoTag.isEmpty()) {
-						// 5. Llamar al registro CON TODOS los datos
+						//5. Comprobar que el tag no esté ya registrado
+						try {
+							ResultadoIdentificacion provando = ConexionDB.buscarEmpleadoPorTag(codigoTag);
+							if (provando != null) {
+								// El tag ya está registrado
+								JOptionPane.showMessageDialog(this, "El tag RFID ya está registrado para otro empleado.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
+								miConexion.desconectar();
+								return;
+							}
+						} catch (Exception e1) {
+							System.out.println("Error al buscar el tag RFID: " + e1.getMessage());
+							e1.printStackTrace();
+						}
+						// 6. Llamar al registro CON TODOS los datos
 						Empleado emp = new Empleado(0, nombre, apellido1, apellido2, dni, genero, role, email, nivelAcceso, selectedPicture, codigoTag);
 						registerEmployee(emp);
 						miConexion.desconectar();

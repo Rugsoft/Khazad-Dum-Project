@@ -36,9 +36,10 @@ import khazaddum.modelo.RegistroUsuarios;
 public class ConexionDB {
 
 	private static final String Controlador = "com.mysql.cj.jdbc.Driver";
-	private static final String URL = "jdbc:mysql://127.0.0.1:3306/khazad-dum-db";
-	private static final String Usuario = "root";
-	private static final String Contraseña = "";
+	// Allow overriding DB connection parameters via system properties for tests
+	private static final String URL = System.getProperty("khazaddum.db.url", "jdbc:mysql://127.0.0.1:3306/khazad-dum-db");
+	private static final String Usuario = System.getProperty("khazaddum.db.user", "root");
+	private static final String Contraseña = System.getProperty("khazaddum.db.password", "");
 	ArrayList<Empleado> empList;
 	ArrayList<VisitaTemporal> tempList;
 	
@@ -237,7 +238,7 @@ public class ConexionDB {
 				psEmpleado.setInt(1, idEntidad);
 				
 				for(int i = 1; i < datos.length; i++) {
-					if (i == 8) {
+					if (i == 9) {
 						File picture = (File) datos[i];
 						InputStream inputStream = new FileInputStream(picture);
 						psEmpleado.setBinaryStream(10, inputStream, (int) picture.length());
@@ -292,17 +293,17 @@ public class ConexionDB {
 				psTemporal.setInt(1, idEntidad);
 				
 				for(int i = 1; i < datos.length - 1 ; i++) {
-					if (i == 5) {
+					if (i == 6) {
 						File picture = (File) datos[i];
 						InputStream inputStream = new FileInputStream(picture);
 						psTemporal.setBinaryStream(7, inputStream, (int) picture.length());
-					} else if (i == 6) {
+					} else if (i == 7) {
 						int horas = (int) datos[i];
 						LocalDateTime fechaExpiracion = LocalDateTime.now().plusHours(horas);
 					    Timestamp sqlFechaExpiracion = Timestamp.valueOf(fechaExpiracion);
 					    psTemporal.setTimestamp(8, sqlFechaExpiracion);
 					} else {
-						psTemporal.setObject(i + 2, datos[i]);
+						psTemporal.setObject(i + 1, datos[i]);
 					}
 					
 				}
@@ -327,7 +328,7 @@ public class ConexionDB {
 	 * @return {@link ResultadoIdentificacion} con id y tipo, o {@code null}
 	 *         si no se encuentra.
 	 */
-	public ResultadoIdentificacion buscarEmpleadoPorTag(String tag) {
+	public static ResultadoIdentificacion buscarEmpleadoPorTag(String tag) {
 		
 		String sql = "(SELECT E.id_entidad, E.tipo_entidad, EM.nombre, EM.apellido1 " +
                 " FROM empleados EM JOIN entidades E ON EM.id_entidad = E.id_entidad " +
@@ -434,32 +435,33 @@ public class ConexionDB {
 						
 		                } else if (tipoEntidad.equals("temporal")) {
 	                    // Procesar datos del usuario temporal
-	                    String nombre = resultado.getString("nombre");
-	                    String apellido1 = resultado.getString("apellido1");
-	                    String apellido2 = resultado.getString("apellido2");
-	                    String dni = resultado.getString("dni");
-	                    String motivoVisita = resultado.getString("motivo_visita");
-	                    byte[] fotoBytes = resultado.getBytes("foto");
-	                    File fotoTemporal = null; // Inicializa como null
-	                    
-	                    if (fotoBytes != null && fotoBytes.length > 0) {
-	                        try {
-	                            // Creo un archivo temporal para la foto
-	                            fotoTemporal = File.createTempFile("user_" + dni + "_", ".jpg");
-	                            
-	                            // Escribo los bytes de la foto en el archivo temporal
-	                            Files.write(fotoTemporal.toPath(), fotoBytes);
-	                            
-	                            // Borro el archivo cuando la app se cierre
-	                            fotoTemporal.deleteOnExit(); 
-	                            
-	                        } catch (IOException e) {
-	                            System.err.println("Error al crear el archivo temporal de la foto: " + e.getMessage());
-	                        }
-	                    }
-	                    String codigoTag = resultado.getString("codigo_tag");
-	                    VisitaTemporal temp = new VisitaTemporal(0, nombre, apellido1, apellido2, dni, motivoVisita, fotoTemporal, 0, codigoTag, null);
-	                    return temp.crear();
+                    	int idTemp = resultado.getInt("id_entidad");
+                    	String nombre = resultado.getString("nombre");
+                    	String apellido1 = resultado.getString("apellido1");
+                    	String apellido2 = resultado.getString("apellido2");
+                    	String dni = resultado.getString("dni");
+                    	String motivoVisita = resultado.getString("motivo_visita");
+                    	byte[] fotoBytes = resultado.getBytes("foto");
+                    	File fotoTemporal = null; // Inicializa como null
+                    	
+                    	if (fotoBytes != null && fotoBytes.length > 0) {
+                    	    try {
+                    	        // Creo un archivo temporal para la foto
+                    	        fotoTemporal = File.createTempFile("user_" + dni + "_", ".jpg");
+                    	        
+                    	        // Escribo los bytes de la foto en el archivo temporal
+                    	        Files.write(fotoTemporal.toPath(), fotoBytes);
+                    	        
+                    	        // Borro el archivo cuando la app se cierre
+                    	        fotoTemporal.deleteOnExit(); 
+                    	        
+                    	    } catch (IOException e) {
+                    	        System.err.println("Error al crear el archivo temporal de la foto: " + e.getMessage());
+                    	    }
+                    	}
+                    	String codigoTag = resultado.getString("codigo_tag");
+                    	VisitaTemporal temp = new VisitaTemporal(idTemp, nombre, apellido1, apellido2, dni, motivoVisita, fotoTemporal, 0, codigoTag, null);
+                    	return temp.crear();
 	                }
 	            } else {
 	                System.out.println("No se encontraron datos para la entidad con ID: " + idEntidad);
