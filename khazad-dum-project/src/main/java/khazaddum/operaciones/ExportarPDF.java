@@ -13,6 +13,10 @@ import org.openpdf.text.Phrase;
 import org.openpdf.text.pdf.PdfPCell;
 import org.openpdf.text.pdf.PdfPTable;
 import org.openpdf.text.pdf.PdfWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import khazaddum.gui.MainWindowBalrog;
 
 /**
  * Utilidad para exportar el contenido de un {@link TableModel} a un archivo PDF
@@ -21,6 +25,7 @@ import org.openpdf.text.pdf.PdfWriter;
 public class ExportarPDF {
 
 	private TableModel modelo;
+	private static final Logger logger = LoggerFactory.getLogger(ExportarPDF.class);
 	
 	/**
 	 * Constructor que recibe el modelo de tabla que se desea exportar.
@@ -88,8 +93,10 @@ public class ExportarPDF {
 	            document.close();
 	            
 	            JOptionPane.showMessageDialog(null, "¡Exportado a PDF con éxito!");
+	            logger.info("Datos exportados a PDF en: {}", fileToSave.getAbsolutePath());
 
 	        } catch (Exception e) {
+	        	logger.error("Error al exportar a PDF: {}", e.getMessage());
 	            JOptionPane.showMessageDialog(null, "Error al exportar a PDF: " + e.getMessage());
 	            e.printStackTrace();
 	        }

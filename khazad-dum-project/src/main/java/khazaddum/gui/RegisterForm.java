@@ -18,6 +18,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import khazaddum.modelo.UserLogin;
 import khazaddum.operaciones.ConexionDB;
 
@@ -39,6 +42,7 @@ import java.awt.Cursor;
 public class RegisterForm extends JDialog implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(RegisterForm.class);
 	private JTextField textName;
 	private JTextField textApellido;
 	private JTextField textUser;
@@ -192,6 +196,7 @@ public class RegisterForm extends JDialog implements ActionListener{
 	    	boolean resultConection = ConexionDB.añadirUsuariosLogin(sql, nuevoUsuario.crear());
 	    	
 	    	if (resultConection) {
+	    		logger.info("Nuevo usuario registrado: {}", usuario);
 	    		limpiarCampos();
 	    	}
 	    	

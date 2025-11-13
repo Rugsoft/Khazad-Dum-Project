@@ -30,6 +30,9 @@ import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JTabbedPane;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Component;
 import javax.swing.JComboBox;
 import javax.swing.border.TitledBorder;
@@ -56,6 +59,7 @@ import java.awt.event.MouseEvent;
 public class MainWindowGandalf extends JFrame implements ActionListener {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger logger = LoggerFactory.getLogger(MainWindowGandalf.class);
     private JPanel contentPane;
     private JTable tablaPrincipal;
     private JTable tablaEnUso;
@@ -366,6 +370,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 			
 		
 		} catch (Exception e) {
+			logger.error("Error al cargar empleados: {}", e.getMessage());
 			e.printStackTrace();
 			
 		}
@@ -423,6 +428,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 			
 		
 		} catch (Exception e) {
+			logger.error("Error al cargar usuarios temporales: {}", e.getMessage());
 			e.printStackTrace();
 			
 		}
@@ -576,6 +582,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 					
 					modeloP.removeRow(filaSeleccionada);
 					tablaPrincipal.setModel(modeloP);
+					logger.info("Usuario con ID {} eliminado correctamente.", idEntidad);
 					JOptionPane.showMessageDialog(this, "Usuario eliminado correctamente.");
 				} else {
 					
@@ -583,12 +590,14 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 			                   "No se pudo eliminar al usuario.\nRevise la consola).", 
 			                   "Error de eliminación", 
 			                   JOptionPane.ERROR_MESSAGE);
+					logger.error("Error al eliminar usuario con ID {}.", idEntidad);
 				}
 				
 			}
 			
 			
 		} catch (Exception e) {
+			logger.error("Error al eliminar usuario: {}", e.getMessage());
 	        JOptionPane.showMessageDialog(this, "Error al obtener datos de la tabla: " + e.getMessage());
 	        e.printStackTrace();
 	    }
@@ -616,6 +625,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 				tempList = conexion.obtenerTemporal(sql);
 				
 			} catch (Exception e) {
+				logger.error("Error al buscar usuarios temporales: {}", e.getMessage());
 				e.printStackTrace();
 				
 			}
@@ -630,6 +640,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 				tempList = conexion.obtenerTemporal(sql);
 				
 			} catch (Exception e) {
+				logger.error("Error al buscar usuarios temporales: {}", e.getMessage());
 				e.printStackTrace();
 				
 			}
@@ -695,6 +706,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 				empList = conexion.obtenerEmpleados(sql);
 				
 			} catch (Exception e) {
+				logger.error("Error al buscar empleados: {}", e.getMessage());
 				e.printStackTrace();
 				
 			}
@@ -709,6 +721,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 				empList = conexion.obtenerEmpleados(sql);
 				
 			} catch (Exception e) {
+				logger.error("Error al buscar empleados: {}", e.getMessage());
 				e.printStackTrace();
 				
 			}
@@ -775,6 +788,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 		registros = conexion.obtenerRegistrosNombre(idEmpleado, fechaInicio, fechaFinal);
 		
 		if (registros.isEmpty()) {
+			logger.info("No se encontraron registros para la entidad con ID {} en el rango dado.", idEmpleado);
 		    JOptionPane.showMessageDialog(this, "Esta entidad no tiene registros.");
 		    
 		} else {
@@ -859,6 +873,7 @@ public class MainWindowGandalf extends JFrame implements ActionListener {
 			}
 			
 	    } catch (Exception e) {
+	    	logger.error("Error al modificar usuario: {}", e.getMessage());
 	        JOptionPane.showMessageDialog(this, "Error al obtener los datos de la tabla: " + e.getMessage());
 	        e.printStackTrace();
 	    }

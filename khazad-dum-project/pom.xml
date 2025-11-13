@@ -24,6 +24,14 @@
       <version>2.11.2</version>
     </dependency>
     
+    <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+	<dependency>
+    	<groupId>ch.qos.logback</groupId>
+    	<artifactId>logback-classic</artifactId>
+    	<version>1.5.21</version>
+   	 	<scope>compile</scope>
+	</dependency>
+    
       <!-- LGoodDatePicker para seleccionar fechas en swing -->
     	<dependency>
     <groupId>com.github.lgooddatepicker</groupId>

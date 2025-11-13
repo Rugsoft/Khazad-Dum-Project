@@ -13,6 +13,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import khazaddum.gui.MainWindowBalrog;
 
 /**
  * Utilidad para exportar el contenido de un TableModel a un archivo Excel (.xlsx)
@@ -21,6 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ExportarExcel {
 	
 	private TableModel modelo;
+	private static final Logger logger = LoggerFactory.getLogger(ExportarExcel.class);
 	
 	/**
 	 * Constructor que recibe el modelo de tabla a exportar.
@@ -84,8 +89,10 @@ public class ExportarExcel {
 	        try (FileOutputStream outputStream = new FileOutputStream(fileToSave)) {
 	            workbook.write(outputStream);
 	            workbook.close();
+	            logger.info("Datos exportados a Excel en: {}", fileToSave.getAbsolutePath());
 	            JOptionPane.showMessageDialog(null, "Exportado a excel con éxito", "Info", JOptionPane.INFORMATION_MESSAGE);
 	        } catch (Exception e) {
+	        	logger.error("Error al exportar a Excel: {}", e.getMessage());
 	            JOptionPane.showMessageDialog(null, "Error al exportar a Excel: " + e.getMessage());
 	            e.printStackTrace();
 	        }

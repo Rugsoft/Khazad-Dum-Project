@@ -17,6 +17,9 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import khazaddum.modelo.ResultadoIdentificacion;
 import khazaddum.modelo.VisitaTemporal;
 import khazaddum.operaciones.ComunicacionSerie;
@@ -44,6 +47,7 @@ import javax.swing.JLabel;
 public class TemporaryUserRegister extends JDialog implements ActionListener, SerialDataCallback {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(TemporaryUserRegister.class);
 	private JTextField textName;
 	private JTextField textLasName1;
 	private JTextField textLastName2;
@@ -191,6 +195,7 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 					miConexion = new ComunicacionSerie();
 					miConexion.setSerialDataCallback(this);
 					miConexion.conectar();
+					logger.info("Conexión serie iniciada para lectura de RFID.");
 					
 					JOptionPane.showMessageDialog(this, "Por favor, acerque el tag RFID al lector.", "Informacion", JOptionPane.INFORMATION_MESSAGE);
 					
@@ -204,11 +209,14 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 							ResultadoIdentificacion provando = ConexionDB.buscarEmpleadoPorTag(codigoTag);
 							if (provando != null) {
 								// El tag ya está registrado
+								logger.warn("Intento de registro con tag RFID ya existente: {}", codigoTag);
 								JOptionPane.showMessageDialog(this, "El tag RFID ya está registrado para otro empleado.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
 								miConexion.desconectar();
+								logger.info("Conexión serie finalizada tras error de tag duplicado.");
 								return;
 							}
 						} catch (Exception e1) {
+							logger.error("Error al buscar el tag RFID en la base de datos: {}", e1.getMessage());
 							System.out.println("Error al buscar el tag RFID: " + e1.getMessage());
 							e1.printStackTrace();
 						}
@@ -217,6 +225,7 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 						this.dispose(); // Cierra la ventana de registro
 					} else {
 						// El usuario cerró el diálogo RFID o no se leyó nada
+						logger.warn("Registro temporal cancelado: no se leyó ningún tag RFID.");
 						JOptionPane.showMessageDialog(this, "Registro cancelado. No se leyó ningún tag RFID.", "Cancelado", JOptionPane.WARNING_MESSAGE);
 					}
 					
@@ -240,11 +249,13 @@ public class TemporaryUserRegister extends JDialog implements ActionListener, Se
 			
 			ConexionDB.añadirUsuarioTemporal(tempUser.crear()); 
 		} catch (FileNotFoundException e) {
+			logger.error("Fichero de imagen no encontrado al registrar usuario temporal: {}", e.getMessage());
 			System.out.println("No se encontro el fichero: " + e.getMessage());
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error al guardar la imagen: " + e.getMessage(), "Error de Fichero", JOptionPane.ERROR_MESSAGE);
 		} catch (Exception e) {
 			// Captura genérica para otros errores
+			logger.error("Error al registrar usuario temporal en la base de datos: {}", e.getMessage());
 			System.out.println("Error al registrar: " + e.getMessage());
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error al registrar en la base de datos: " + e.getMessage(), "Error de DB", JOptionPane.ERROR_MESSAGE);

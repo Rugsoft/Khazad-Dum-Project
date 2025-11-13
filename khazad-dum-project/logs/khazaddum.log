@@ -1,0 +1,19 @@
+13-11-2025 12:21:47.227 [AWT-EventQueue-0] INFO  khazaddum.gui.RegisterForm - Nuevo usuario registrado: Masao
+13-11-2025 13:09:34.942 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:09:35.107 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:09:35.173 [AWT-EventQueue-0] INFO  khazaddum.gui.LoginForm - Usuario Rugsoft ha iniciado sesión con nivel Gandalf
+13-11-2025 13:09:37.673 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:09:50.911 [AWT-EventQueue-0] INFO  khazaddum.operaciones.ExportarPDF - Datos exportados a PDF en: C:\Users\Friki\Desktop\Prueba.pdf
+13-11-2025 13:10:05.106 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:10:05.114 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:10:14.250 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:10:28.827 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:10:28.832 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Empleado ID 19 actualizado correctamente.
+13-11-2025 13:10:32.507 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:10:39.763 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:10:44.340 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:10:48.739 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:10:53.387 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:10:56.955 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:11:00.663 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowBalrog - Conexión a la base de datos establecida.
+13-11-2025 13:11:00.668 [AWT-EventQueue-0] INFO  khazaddum.gui.MainWindowGandalf - Usuario con ID 23 eliminado correctamente.

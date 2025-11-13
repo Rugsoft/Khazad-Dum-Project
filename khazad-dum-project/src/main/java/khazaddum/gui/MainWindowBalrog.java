@@ -32,6 +32,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Ventana principal para usuarios de nivel Balrog/Goblin.
  * <p>
@@ -44,6 +47,7 @@ import javax.swing.JDialog;
 public class MainWindowBalrog extends JFrame implements ActionListener, SerialDataCallback {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(MainWindowBalrog.class);
 	private JPanel contentPane;
 	private JLabel lblPicture;
 	private JTable table;
@@ -458,11 +462,12 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 		try {
 			
 			ConexionDB conex = new ConexionDB();
-			ResultadoIdentificacion resultado = conex.buscarEmpleadoPorTag(mensajeDeArduino);
+			ResultadoIdentificacion resultado = ConexionDB.buscarEmpleadoPorTag(mensajeDeArduino);
 			
 		    // Si es nulo (tag no encontrado), limpiamos campos y salimos del método.
 		    if (resultado == null) {
 		        System.err.println("Tag no reconocido: " + mensajeDeArduino);
+		        logger.warn("Tag no reconocido: {}", mensajeDeArduino);
 		        limpiarCampos();
 		        return; // Salimos para no ejecutar el código de abajo
 		    }
@@ -526,6 +531,7 @@ public class MainWindowBalrog extends JFrame implements ActionListener, SerialDa
 			registrarEntradasYSalidas(resultado.idEntidad());
 		} catch (Exception e) {
 	        // 1. Imprimo el error en la consola para saber qué pasó
+			logger.error("Error al procesar el tag: {}", e.getMessage(), e);
 	        System.err.println("Error al procesar el tag: " + e.getMessage());
 	        e.printStackTrace();
 	        

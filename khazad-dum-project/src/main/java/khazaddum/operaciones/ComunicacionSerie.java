@@ -3,9 +3,15 @@ package khazaddum.operaciones;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
+
+import khazaddum.gui.MainWindowBalrog;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Maneja la comunicación serie con un dispositivo (por ejemplo un Arduino).
@@ -19,6 +25,7 @@ import java.io.InputStreamReader;
 public class ComunicacionSerie implements SerialPortDataListener {
 
     private SerialPort puertoSerie;
+    private static final Logger logger = LoggerFactory.getLogger(ComunicacionSerie.class);
     private BufferedReader serialReader; // Sigue siendo necesario para leer líneas completas
     private SerialDataCallback miCallback;
 
@@ -33,6 +40,7 @@ public class ComunicacionSerie implements SerialPortDataListener {
         puertoSerie.setBaudRate(9600); // Velocidad en baudios
 
         if (!puertoSerie.openPort()) {
+        	logger.error("No se pudo abrir el puerto serie COM4.");
             System.err.println("Error: No se pudo abrir el puerto.");
             return false;
         }
@@ -42,6 +50,7 @@ public class ComunicacionSerie implements SerialPortDataListener {
         
         // 2. Registro ESTA CLASE (this) como el listener
         puertoSerie.addDataListener(this);
+        logger.info("Puerto serie COM4 abierto y listener registrado.");
         System.out.println("Puerto conectado y listener registrado.");
         return true;
     }
@@ -59,6 +68,7 @@ public class ComunicacionSerie implements SerialPortDataListener {
             puertoSerie.getOutputStream().flush();
             return true;
         } catch (IOException ex) {
+        	logger.error("Error al enviar datos por el puerto serie: {}", ex.getMessage());
             System.err.println("Error al enviar datos: " + ex.getMessage());
             return false;
         }
@@ -72,6 +82,7 @@ public class ComunicacionSerie implements SerialPortDataListener {
             puertoSerie.removeDataListener(); // Importante: quitar el listener
             puertoSerie.closePort();
             System.out.println("Puerto desconectado.");
+            logger.info("Puerto serie COM4 desconectado.");
         }
     }
 
@@ -120,6 +131,7 @@ public class ComunicacionSerie implements SerialPortDataListener {
 
             }
         } catch (IOException ex) {
+        	logger.error("Error al leer del puerto serie: {}", ex.getMessage());
             System.err.println("Error al leer del puerto: " + ex.getMessage());
         }
     }

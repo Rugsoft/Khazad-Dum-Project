@@ -18,6 +18,9 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.JPasswordField;
 
 /**
@@ -36,6 +39,9 @@ public class LoginForm extends JDialog implements ActionListener {
 	
 	/** Panel principal que contiene todos los componentes de la GUI. */
 	private final JPanel contentPanel = new JPanel();
+	
+	/** Logger para registrar eventos y errores. */
+	private static final Logger logger = LoggerFactory.getLogger(LoginForm.class);
 	
 	/** Campo de texto para ingresar el nombre de usuario. */
 	private JTextField textUser;
@@ -154,18 +160,21 @@ public class LoginForm extends JDialog implements ActionListener {
 				case "Gandalf":
 					MainWindowGandalf ventanaGandalf = new MainWindowGandalf(user, nivel);
 					ventanaGandalf.setVisible(true);
+					logger.info("Usuario {} ha iniciado sesi\u00F3n con nivel {}", user, nivel);
 					this.dispose(); // Cierra la ventana de login
 					break;
 				case "Balrog":
 				case "Goblin":
 					MainWindowBalrog ventanaBalrog = new MainWindowBalrog(user, nivel);
 					ventanaBalrog.setVisible(true);
+					logger.info("Usuario {} ha iniciado sesi\u00F3n con nivel {}", user, nivel);
 					this.dispose(); // Cierra la ventana de login
 					break;
 				} 
 				
 			} else {
 				// Credenciales incorrectas
+				logger.warn("Intento de login fallido para el usuario: {}", user);
 				JOptionPane.showMessageDialog(null, "Usuario o contrase\u00F1a incorrectos", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 	        

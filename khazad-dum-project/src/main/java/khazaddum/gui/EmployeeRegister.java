@@ -17,6 +17,9 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import khazaddum.modelo.Empleado;
 import khazaddum.modelo.ResultadoIdentificacion;
 import khazaddum.modelo.VisitaTemporal;
@@ -46,6 +49,7 @@ import javax.swing.SwingConstants;
 public class EmployeeRegister extends JDialog implements ActionListener, SerialDataCallback {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(EmployeeRegister.class);
 	private JTextField textName;
 	private JTextField textLasName1;
 	private JTextField textLastName2;
@@ -233,11 +237,13 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
 							ResultadoIdentificacion provando = ConexionDB.buscarEmpleadoPorTag(codigoTag);
 							if (provando != null) {
 								// El tag ya está registrado
+								logger.warn("Intento de registro con tag RFID ya existente: {}", codigoTag);
 								JOptionPane.showMessageDialog(this, "El tag RFID ya está registrado para otro empleado.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
 								miConexion.desconectar();
 								return;
 							}
 						} catch (Exception e1) {
+							logger.error("Error al buscar el tag RFID: {}", e1.getMessage());
 							System.out.println("Error al buscar el tag RFID: " + e1.getMessage());
 							e1.printStackTrace();
 						}
@@ -248,10 +254,12 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
 						this.dispose(); // Cierra la ventana de registro
 					} else {
 						// El usuario cerró el diálogo RFID o no se leyó nada
+						logger.info("Registro de empleado cancelado: no se leyó ningún tag RFID.");
 						JOptionPane.showMessageDialog(this, "Registro cancelado. No se leyó ningún tag RFID.", "Cancelado", JOptionPane.WARNING_MESSAGE);
 					}
 					
 				} else {
+					// Campos incompletos
 					JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos y seleccione una foto.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
 					return;
 				} 			
@@ -271,11 +279,13 @@ public class EmployeeRegister extends JDialog implements ActionListener, SerialD
 			
 			ConexionDB.añadirEmpleado(emp.crear()); 
 		} catch (FileNotFoundException e) {
+			logger.error("No se encontro el fichero: {}", e.getMessage());
 			System.out.println("No se encontro el fichero: " + e.getMessage());
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error al guardar la imagen: " + e.getMessage(), "Error de Fichero", JOptionPane.ERROR_MESSAGE);
 		} catch (Exception e) {
 			// Captura genérica para otros errores
+			logger.error("Error al registrar el empleado: {}", e.getMessage());
 			System.out.println("Error al registrar: " + e.getMessage());
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error al registrar en la base de datos: " + e.getMessage(), "Error de DB", JOptionPane.ERROR_MESSAGE);

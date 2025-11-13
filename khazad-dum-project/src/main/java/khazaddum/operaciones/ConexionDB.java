@@ -20,6 +20,10 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import khazaddum.gui.MainWindowBalrog;
 import khazaddum.modelo.Empleado;
 import khazaddum.modelo.ResultadoIdentificacion;
 import khazaddum.modelo.VisitaTemporal;
@@ -36,10 +40,10 @@ import khazaddum.modelo.RegistroUsuarios;
 public class ConexionDB {
 
 	private static final String Controlador = "com.mysql.cj.jdbc.Driver";
-	// Allow overriding DB connection parameters via system properties for tests
 	private static final String URL = System.getProperty("khazaddum.db.url", "jdbc:mysql://127.0.0.1:3306/khazad-dum-db");
 	private static final String Usuario = System.getProperty("khazaddum.db.user", "root");
 	private static final String Contraseña = System.getProperty("khazaddum.db.password", "");
+	private static final Logger logger = LoggerFactory.getLogger(MainWindowBalrog.class);
 	ArrayList<Empleado> empList;
 	ArrayList<VisitaTemporal> tempList;
 	
@@ -70,11 +74,13 @@ public class ConexionDB {
 		try {
 			
 			conexion = DriverManager.getConnection(URL, Usuario, Contraseña);
+			logger.info("Conexión a la base de datos establecida.");
 			System.out.println("Conexion realizada");
 			
 		} catch(SQLException e){
 			
 			e.printStackTrace();
+			logger.error("Error al conectar con la base de datos: {}", e.getMessage());
 			System.out.println("Conexion no realizada, error: " + e.getMessage());
 		}
 		
@@ -103,12 +109,14 @@ public class ConexionDB {
 				
 				sentencia.executeUpdate();
 				System.out.println("Usuario registrado");
+				logger.info("Nuevo usuario registrado en la base de datos.");
 				JOptionPane.showMessageDialog(null, "Usuario registrado correctamente", "Info", JOptionPane.INFORMATION_MESSAGE);
 				return true;
 			}
 			
 		} catch(SQLException e) {
 			e.printStackTrace();
+			logger.error("Error al registrar usuario en la base de datos: {}", e.getMessage());
 			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 			System.out.println("No se ha podido registrar el usuario, error: " + e.getMessage());
 		}
@@ -141,6 +149,7 @@ public class ConexionDB {
 					String nivel = resultado.getString("nivel");
 					return nivel;
 				} else {
+					logger.warn("Intento de login fallido para el usuario: {}", user);
 					System.out.println("Login incorrecto");
 					return null;
 				}
@@ -148,6 +157,7 @@ public class ConexionDB {
 			
 		} catch(SQLException e) {
 			e.printStackTrace();
+			logger.error("Error al comprobar login en la base de datos: {}", e.getMessage());
 			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 			System.out.println("No se ha podido comprobar el login, error: " + e.getMessage());
 			return null;
@@ -190,15 +200,17 @@ public class ConexionDB {
                     return new ResultadoIdentificacion(idEntidad, tipoEntidad);
                     
 				} else {
-					System.out.println("Tag no encontrado");
+					logger.warn("Búsqueda fallida para el nombre: {} y apellido: {}", nombre, apellido);
+					System.out.println("Empleado no encontrado");
 					return null;
 				}
 			}
 			
 		} catch(SQLException e) {
 			e.printStackTrace();
+			logger.error("Error al buscar empleado en la base de datos: {}", e.getMessage());
 			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-			System.out.println("No se ha podido comprobar el tag: " + e.getMessage());
+			System.out.println("No se ha encontrado el empleado: " + e.getMessage());
 			return null;
 		}
 		return null;
@@ -231,6 +243,7 @@ public class ConexionDB {
 					idEntidad = rsKeys.getInt(1);
 					
 				} else {
+					logger.error("No se pudo obtener el ID de la entidad al añadir empleado.");
 		                throw new SQLException("No se pudo obtener el ID de la entidad.");
 		            }
 				
@@ -248,12 +261,14 @@ public class ConexionDB {
 					
 				}
 				psEmpleado.executeUpdate();
+				logger.info("Nuevo empleado añadido a la base de datos con ID de entidad: {}", idEntidad);
 				JOptionPane.showMessageDialog(null, "Empleado añadido", "INFO", JOptionPane.INFORMATION_MESSAGE);
 			
 			}
 					
 				} catch(SQLException e) {
 				e.printStackTrace();
+				logger.error("Error al añadir empleado en la base de datos: {}", e.getMessage());
 				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
 			}
@@ -286,6 +301,7 @@ public class ConexionDB {
 					idEntidad = rsKeys.getInt(1);
 					
 				} else {
+					logger.error("No se pudo obtener el ID de la entidad al añadir usuario temporal.");
 		                throw new SQLException("No se pudo obtener el ID de la entidad.");
 		            }
 				
@@ -308,12 +324,14 @@ public class ConexionDB {
 					
 				}
 				psTemporal.executeUpdate();
+				logger.info("Nuevo usuario temporal añadido a la base de datos con ID de entidad: {}", idEntidad);
 				JOptionPane.showMessageDialog(null, "Usuario temporal añadido", "INFO", JOptionPane.INFORMATION_MESSAGE);
 			
 			}
 					
 				} catch(SQLException e) {
 				e.printStackTrace();
+				logger.error("Error al añadir usuario temporal en la base de datos: {}", e.getMessage());
 				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
 			}
@@ -354,6 +372,7 @@ public class ConexionDB {
                     return new ResultadoIdentificacion(idEntidad, tipoEntidad);
                     
 				} else {
+					logger.warn("Búsqueda fallida para el tag: {}", tag);
 					System.out.println("Tag no encontrado");
 					return null;
 				}
@@ -361,6 +380,7 @@ public class ConexionDB {
 			
 		} catch(SQLException e) {
 			e.printStackTrace();
+			logger.error("Error al buscar tag en la base de datos: {}", e.getMessage());
 			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 			System.out.println("No se ha podido comprobar el tag: " + e.getMessage());
 			return null;
@@ -393,6 +413,7 @@ public class ConexionDB {
 	                sentencia = conexion.prepareStatement(sqlTemporal);
 	            } else {
 	                System.out.println("Tipo de entidad desconocido");
+	                logger.error("Tipo de entidad desconocido: {}", tipoEntidad);
 	                return null;
 	            }
 
@@ -426,6 +447,7 @@ public class ConexionDB {
 					            fotoTemporal.deleteOnExit(); 
 					            
 					        } catch (IOException e) {
+					        	logger.error("Error al crear archivo temporal de foto para empleado ID {}: {}", idEmp, e.getMessage());
 					            System.err.println("Error al crear el archivo temporal de la foto: " + e.getMessage());
 					        }
 					    }
@@ -456,6 +478,7 @@ public class ConexionDB {
                     	        fotoTemporal.deleteOnExit(); 
                     	        
                     	    } catch (IOException e) {
+                    	    	logger.error("Error al crear archivo temporal de foto para usuario temporal ID {}: {}", idTemp, e.getMessage());
                     	        System.err.println("Error al crear el archivo temporal de la foto: " + e.getMessage());
                     	    }
                     	}
@@ -464,12 +487,14 @@ public class ConexionDB {
                     	return temp.crear();
 	                }
 	            } else {
+	            	logger.warn("No se encontraron datos para la entidad con ID: {}", idEntidad);
 	                System.out.println("No se encontraron datos para la entidad con ID: " + idEntidad);
 	            }
 	        }
 
 	    } catch (SQLException e) {
 	        e.printStackTrace();
+	        logger.error("Error al obtener datos completos de la entidad ID {}: {}", idEntidad, e.getMessage());
 	        JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 	        System.out.println("No se ha podido obtener los datos completos: " + e.getMessage());
 	    }
@@ -497,12 +522,14 @@ public class ConexionDB {
 				sentencia.setString(3, tipoRegistro);
 				
 				sentencia.executeUpdate();
+				logger.info("Registro de {} añadido para la entidad ID: {}", tipoRegistro, idEntidad);
 				System.out.println("Registro de entrada/salida añadido");
 			
 			}
 					
 				} catch(SQLException e) {
 				e.printStackTrace();
+				logger.error("Error al registrar entrada/salida para la entidad ID {}: {}", idEntidad, e.getMessage());
 				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 				System.out.println("No se ha podido registrar la entrada/salida: " + e.getMessage());
 			}
@@ -539,6 +566,7 @@ public class ConexionDB {
             }
 
         } catch (SQLException e) {
+        	logger.error("Error al verificar el último registro para la entidad ID {}: {}", idEntidad, e.getMessage());
             System.err.println("Error al verificar el último registro: " + e.getMessage());
             // En caso de error, es más seguro asumir 'entrada' para no bloquear
             return "entrada"; 
@@ -595,11 +623,13 @@ public class ConexionDB {
 				
 				sentencia.executeUpdate();
 				System.out.println("Empleado actualizado");
+				logger.info("Empleado ID {} actualizado correctamente.", idEmpleado);
 				JOptionPane.showMessageDialog(null, "Empleado actualizado correctamente", "Info", JOptionPane.INFORMATION_MESSAGE);
 			}
 			
 		} catch(SQLException e) {
 			e.printStackTrace();
+			logger.error("Error al actualizar empleado ID {}: {}", idEmpleado, e.getMessage());
 			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 			System.out.println("No se ha podido actualizar el empleado, error: " + e.getMessage());
 		}
@@ -632,11 +662,13 @@ public class ConexionDB {
 				
 				sentencia.executeUpdate();
 				System.out.println("Usuario temporal actualizado");
+				logger.info("Usuario temporal ID {} actualizado correctamente.", idTemporal);
 				JOptionPane.showMessageDialog(null, "Usuario temporal actualizado correctamente", "Info", JOptionPane.INFORMATION_MESSAGE);
 			}
 			
 		} catch(SQLException e) {
 			e.printStackTrace();
+			logger.error("Error al actualizar usuario temporal ID {}: {}", idTemporal, e.getMessage());
 			JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 			System.out.println("No se ha podido actualizar el usuario temporal, error: " + e.getMessage());
 		}
@@ -680,6 +712,7 @@ public class ConexionDB {
 					
 				} catch(SQLException e) {
 				e.printStackTrace();
+				logger.error("Error al obtener empleados de la base de datos: {}", e.getMessage());
 				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
 			}
@@ -723,6 +756,7 @@ public class ConexionDB {
 					
 				} catch(SQLException e) {
 				e.printStackTrace();
+				logger.error("Error al obtener usuarios temporales de la base de datos: {}", e.getMessage());
 				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
 			}
@@ -784,6 +818,7 @@ public class ConexionDB {
 					
 				} catch(SQLException e) {
 				e.printStackTrace();
+				logger.error("Error al obtener registros de la base de datos para la entidad ID {}: {}", idEntidad, e.getMessage());
 				JOptionPane.showMessageDialog(null, "Error al conectar con la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 				System.out.println("No se ha podido comprobar el nombre: " + e.getMessage());
 			}
@@ -825,6 +860,7 @@ public class ConexionDB {
                 // Hacemos rollback por precaución, aunque el borrado
                 // de registros no haya hecho nada.
                 if (filasAfectadas == 0) {
+                	logger.warn("Intento de eliminar entidad inexistente con ID: {}", id);
                     throw new SQLException("El idEntidad " + id + " no existe.");
                 }
             }
@@ -834,6 +870,7 @@ public class ConexionDB {
             return true; // ¡Todo salió bien!
 
         } catch (SQLException e) {
+        	logger.error("Error al eliminar la entidad y su historial ID {}: {}", id, e.getMessage());
             System.err.println("Error al eliminar la entidad y su historial: " + e.getMessage());
             
             // --- ERROR: Revertir ---
@@ -855,6 +892,7 @@ public class ConexionDB {
                     conexion.close();
                 }
             } catch (SQLException e) {
+            	logger.error("Error al cerrar la conexión después de eliminar entidad ID {}: {}", id, e.getMessage());
                 e.printStackTrace();
             }
         }
